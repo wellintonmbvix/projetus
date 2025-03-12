@@ -54,11 +54,14 @@ class procedure TControllerCliente.GetAll(Req: THorseRequest; Res: THorseRespons
 var
   Pessoas: TObjectList<Tpessoas>;
   Pessoa: Tpessoas;
+  Contato: Tcontatos;
+  Telefone: Tcontatos_telefones;
+  Email: Tcontatos_emails;
   aJson: TJSONArray;
   oJsonResult,
   oJson: TJSONObject;
   nome,
-  email,
+  vemail,
   page,
   records,
   perPage,
@@ -71,16 +74,16 @@ begin
       var
       IPessoa := TIPessoa.New;
       nome := Req.Query['nome'];
-      email := Req.Query['email'];
+      vemail := Req.Query['email'];
       page := Req.Query['page'];
       perPage := Req.Query['perPage'];
 
-      filter := 'dt_del is null';
+      filter := 'dt_del is null AND tipo = ''C''';
       if nome <> EmptyStr then
         filter := filter + ' AND nome LIKE '+QuotedStr('%'+nome+'%');
 
-      if email <> EmptyStr then
-        filter := filter + ' AND email LIKE '+QuotedStr('%'+email+'%');
+      if vemail <> EmptyStr then
+        filter := filter + ' AND email LIKE '+QuotedStr('%'+vemail+'%');
 
       if page = EmptyStr then
         page := '1';
@@ -103,12 +106,7 @@ begin
           oJson := TJSONObject.Create;
           oJson.AddPair('id_cliente', Pessoa.id_pessoa.ToString);
           oJson.AddPair('nome', Pessoa.nome);
-          oJson.AddPair('telefone1', Pessoa.telefone1);
-          if Not Pessoa.telefone2.HasValue then
-            oJson.AddPair('telefone2', TJSONNull.Create)
-          else
-            oJson.AddPair('telefone2', Pessoa.telefone2);
-          oJson.AddPair('email', Pessoa.email);
+
             var endereco := TJSONObject.Create;
             endereco.AddPair('cep', Pessoa.endereco.cep);
             endereco.AddPair('logradouro', Pessoa.endereco.logradouro);
@@ -117,7 +115,63 @@ begin
             endereco.AddPair('bairro', Pessoa.endereco.bairro);
             endereco.AddPair('municipio', Pessoa.endereco.municipio);
             endereco.AddPair('estado', Pessoa.endereco.estado);
+
+            var dados_pessoais := TJSONObject.Create;
+            if Pessoa.dados_pessoais.cpf.HasValue then
+              dados_pessoais.AddPair('cpf', Pessoa.dados_pessoais.cpf.Value)
+            else
+              dados_pessoais.AddPair('cpf', TJSONNull.Create);
+
+            if Pessoa.dados_pessoais.identidade.HasValue then
+              dados_pessoais.AddPair('identidade', Pessoa.dados_pessoais.identidade.Value)
+            else
+              dados_pessoais.AddPair('identidade', TJSONNull.Create);
+
+            if Pessoa.dados_pessoais.data_nascimento.HasValue then
+              dados_pessoais.AddPair('data_nascimento',
+                FormatDateTime('YYYY-mm-dd', Pessoa.dados_pessoais.data_nascimento.Value))
+            else
+              dados_pessoais.AddPair('data_nascimento', TJSONNull.Create);
+
           oJson.AddPair('endereco', endereco);
+          oJson.AddPair('dados_pessoas', dados_pessoais);
+
+          for Contato in Pessoa.contatos do
+            begin
+              var aContatos := TJSONArray.Create;
+              var oContatos := TJSONObject.Create;
+              oContatos.AddPair('nome', Contato.nome);
+
+              for var i := 0 to Contato.contatos_telefones.Count - 1 do
+                begin
+                  Telefone := Contato.contatos_telefones[i];
+
+                  var aTelefones := TJSONArray.Create;
+                  var oTelefones := TJSONObject.Create;
+                  oTelefones.AddPair('telefone', Telefone.telefone);
+                  aTelefones.AddElement(oTelefones);
+
+                  if i = Contato.contatos_telefones.Count - 1 then
+                    oContatos.AddPair('telefones', aTelefones);
+                end;
+
+              for var i := 0 to Contato.contatos_emails.Count - 1 do
+                begin
+                  Email := Contato.contatos_emails[i];
+
+                  var aEmails := TJSONArray.Create;
+                  var oEmails := TJSONObject.Create;
+                  oEmails.AddPair('email', Email.email);
+                  aEmails.AddElement(oEmails);
+
+                  if i = Contato.contatos_emails.Count - 1 then
+                    oContatos.AddPair('emails', aEmails);
+                end;
+
+              aContatos.AddElement(oContatos);
+              oJson.AddPair('contatos', aContatos);
+            end;
+
           oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', Pessoa.dt_inc));
           if Pessoa.dt_alt.HasValue then
             oJson.AddPair('alterado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', Pessoa.dt_alt.Value))
@@ -142,6 +196,11 @@ begin
     End;
   Finally
     Pessoas.Clear;
+    if Assigned(Telefone) then
+      Telefone := nil;
+    if Assigned(Email) then
+      Email := nil;
+
     FreeAndNil(Pessoas);
   End;
 end;
@@ -184,12 +243,7 @@ begin
         var oJson := TJSONObject.Create;
         oJson.AddPair('id_cliente', Pessoa.id_pessoa.ToString);
         oJson.AddPair('nome', Pessoa.nome);
-        oJson.AddPair('telefone1', Pessoa.telefone1);
-        if Not Pessoa.telefone2.HasValue then
-          oJson.AddPair('telefone2', TJSONNull.Create)
-        else
-          oJson.AddPair('telefone2', Pessoa.telefone2);
-        oJson.AddPair('email', Pessoa.email);
+
           var endereco := TJSONObject.Create;
           endereco.AddPair('cep', Pessoa.endereco.cep);
           endereco.AddPair('logradouro', Pessoa.endereco.logradouro);
@@ -236,9 +290,6 @@ begin
     var IPessoa := TIPessoa.New;
     IPessoa
            .nome(oJson.GetValue<String>('nome'))
-           .telefone1(oJson.GetValue<String>('telefone1'))
-           .telefone2(oJson.GetValue<String>('telefone2'))
-           .email(oJson.GetValue<String>('email'))
            .endereco(Endereco)
     .Build.Insert;
     oJson := TJSONObject.Create;
@@ -268,8 +319,6 @@ begin
       jv := oJson.Get(0).JsonValue;
       IPessoa
               .nome(oJson.GetValue<String>('nome'))
-              .telefone1(oJson.GetValue<String>('telefone'))
-              .email(oJson.GetValue<String>('email'))
       .Build.Insert;
     end;
     oJson := TJSONObject.Create;
@@ -342,9 +391,9 @@ begin
     With Pessoa Do
       begin
         nome := oJson.GetValue<String>('nome');
-        telefone1 := oJson.GetValue<String>('telefone1');
-        telefone2 := oJson.GetValue<String>('telefone2');
-        email := oJson.GetValue<String>('email');
+//        telefone1 := oJson.GetValue<String>('telefone1');
+//        telefone2 := oJson.GetValue<String>('telefone2');
+//        email := oJson.GetValue<String>('email');
         endereco := Endereco;
       end;
     IPessoa.Build.Update;

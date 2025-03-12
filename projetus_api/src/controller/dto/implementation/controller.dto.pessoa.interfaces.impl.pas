@@ -20,6 +20,8 @@ uses
   model.service.interfaces,
   model.service.interfaces.impl,
   model.pessoa,
+  model.dados_pessoais,
+  model.contatos,
   model.endereco;
 
 type
@@ -38,20 +40,20 @@ type
     function nome(value: String): IPessoa; overload;
     function nome: String; overload;
 
-    function telefone1(value: String): IPessoa; overload;
-    function telefone1: String; overload;
-
-    function telefone2(value: String): IPessoa; overload;
-    function telefone2: String; overload;
-
-    function email(value: String): IPessoa; overload;
-    function email: String; overload;
+    function tipo(value: String): IPessoa; overload;
+    function tipo: String; overload;
 
     function suspenso(value: Boolean): IPessoa; overload;
     function suspenso: Boolean; overload;
 
     function endereco(value: Tenderecos): IPessoa; overload;
     function endereco: Tenderecos; overload;
+
+    function dados_pessoais(value: Tdados_pessoais): IPessoa; overload;
+    function dados_pessoais: Tdados_pessoais; overload;
+
+    function contatos(value: TObjectList<Tcontatos>): IPessoa; overload;
+    function contatos: TObjectList<Tcontatos>; overload;
 
     function dt_alt(value: TDateTime): IPessoa; overload;
     function dt_alt: TDateTime; overload;
@@ -71,10 +73,32 @@ begin
   Result := FService;
 end;
 
+function TIPessoa.contatos(value: TObjectList<Tcontatos>): IPessoa;
+begin
+  Result := Self;
+  FEntity.contatos := value;
+end;
+
+function TIPessoa.contatos: TObjectList<Tcontatos>;
+begin
+  Result := FEntity.contatos;
+end;
+
 constructor TIPessoa.Create;
 begin
   FEntity := Tpessoas.Create;
   FService := TServiceORMBr<Tpessoas>.New(FEntity);
+end;
+
+function TIPessoa.dados_pessoais(value: Tdados_pessoais): IPessoa;
+begin
+  Result := Self;
+  FEntity.dados_pessoais := value;
+end;
+
+function TIPessoa.dados_pessoais: Tdados_pessoais;
+begin
+  Result := FEntity.dados_pessoais;
 end;
 
 destructor TIPessoa.Destroy;
@@ -103,17 +127,6 @@ end;
 function TIPessoa.dt_del: TDateTime;
 begin
   Result := FEntity.dt_del;
-end;
-
-function TIPessoa.email: String;
-begin
-  Result := FEntity.email;
-end;
-
-function TIPessoa.email(value: String): IPessoa;
-begin
-  Result := Self;
-  FEntity.email := value;
 end;
 
 function TIPessoa.endereco(value: Tenderecos): IPessoa;
@@ -159,32 +172,21 @@ begin
   Result := FEntity.suspenso;
 end;
 
+function TIPessoa.tipo(value: String): IPessoa;
+begin
+  Result := Self;
+  FEntity.tipo := value;
+end;
+
+function TIPessoa.tipo: String;
+begin
+  Result := FEntity.tipo;
+end;
+
 function TIPessoa.suspenso(value: Boolean): IPessoa;
 begin
   Result := Self;
   FEntity.suspenso := value;
-end;
-
-function TIPessoa.telefone1: String;
-begin
-  Result := FEntity.telefone1;
-end;
-
-function TIPessoa.telefone1(value: String): IPessoa;
-begin
-  Result := Self;
-  FEntity.telefone1 := value;
-end;
-
-function TIPessoa.telefone2(value: String): IPessoa;
-begin
-  Result := Self;
-  FEntity.telefone2 := value;
-end;
-
-function TIPessoa.telefone2: String;
-begin
-  Result := FEntity.telefone2;
 end;
 
 end.

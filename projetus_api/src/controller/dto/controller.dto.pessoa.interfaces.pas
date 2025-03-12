@@ -8,6 +8,8 @@ uses
 
   model.pessoa,
   model.endereco,
+  model.dados_pessoais,
+  model.contatos,
 
   //** ORMBr
   ormbr.types.blob,
@@ -23,20 +25,20 @@ type
     function nome(value: String): IPessoa; overload;
     function nome: String; overload;
 
-    function telefone1(value: String): IPessoa; overload;
-    function telefone1: String; overload;
-
-    function telefone2(value: String): IPessoa; overload;
-    function telefone2: String; overload;
-
-    function email(value: String): IPessoa; overload;
-    function email: String; overload;
+    function tipo(value: String): IPessoa; overload;
+    function tipo: String; overload;
 
     function suspenso(value: Boolean): IPessoa; overload;
     function suspenso: Boolean; overload;
 
     function endereco(value: Tenderecos): IPessoa; overload;
     function endereco: Tenderecos; overload;
+
+    function dados_pessoais(value: Tdados_pessoais): IPessoa; overload;
+    function dados_pessoais: Tdados_pessoais; overload;
+
+    function contatos(value: TObjectList<Tcontatos>): IPessoa; overload;
+    function contatos: TObjectList<Tcontatos>; overload;
 
     function dt_alt(value: TDateTime): IPessoa; overload;
     function dt_alt: TDateTime; overload;
