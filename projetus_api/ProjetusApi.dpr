@@ -4,6 +4,11 @@ program ProjetusApi;
 {$R *.res}
 
 uses
+  {$IFDEF MSWINDOWS}
+  {$IFDEF DEBUG}
+  FastMM4,
+  {$ENDIF }
+  {$ENDIF }
   System.SysUtils,
   Horse,
   Horse.Core,
@@ -20,7 +25,6 @@ uses
   controller.cliente in 'src\controller\controller.cliente.pas',
   model.api.error in 'src\model\entity\model.api.error.pas',
   model.endereco in 'src\model\entity\model.endereco.pas',
-  uRotinas in '..\rotinas\uRotinas.pas',
   model.pessoa in 'src\model\entity\model.pessoa.pas',
   controller.dto.pessoa.interfaces in 'src\controller\dto\controller.dto.pessoa.interfaces.pas',
   controller.dto.pessoa.interfaces.impl in 'src\controller\dto\implementation\controller.dto.pessoa.interfaces.impl.pas',
@@ -38,7 +42,14 @@ uses
   model.orcamentos in 'src\model\entity\model.orcamentos.pas',
   model.profissionais_pacotes_creditos in 'src\model\entity\model.profissionais_pacotes_creditos.pas',
   model.profissionais_servicos in 'src\model\entity\model.profissionais_servicos.pas',
-  model.servicos in 'src\model\entity\model.servicos.pas';
+  model.servicos in 'src\model\entity\model.servicos.pas',
+  controller.dto.contatos.interfaces in 'src\controller\dto\controller.dto.contatos.interfaces.pas',
+  controller.dto.contatos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.contatos.interfaces.impl.pas',
+  controller.dto.contatos_telefones.interfaces in 'src\controller\dto\controller.dto.contatos_telefones.interfaces.pas',
+  controller.dto.contatos_telefones.interfaces.impl in 'src\controller\dto\implementation\controller.dto.contatos_telefones.interfaces.impl.pas',
+  uRotinas in '..\rotinas\uRotinas.pas',
+  controller.dto.contatos_emails.interfaces in 'src\controller\dto\controller.dto.contatos_emails.interfaces.pas',
+  controller.dto.contatos_emails.interfaces.impl in 'src\controller\dto\implementation\controller.dto.contatos_emails.interfaces.impl.pas';
 
 begin
 {$IFDEF MSWINDOWS}

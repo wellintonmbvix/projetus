@@ -129,7 +129,6 @@
         <DCCReference Include="src\controller\controller.cliente.pas"/>
         <DCCReference Include="src\model\entity\model.api.error.pas"/>
         <DCCReference Include="src\model\entity\model.endereco.pas"/>
-        <DCCReference Include="..\rotinas\uRotinas.pas"/>
         <DCCReference Include="src\model\entity\model.pessoa.pas"/>
         <DCCReference Include="src\controller\dto\controller.dto.pessoa.interfaces.pas"/>
         <DCCReference Include="src\controller\dto\implementation\controller.dto.pessoa.interfaces.impl.pas"/>
@@ -148,6 +147,13 @@
         <DCCReference Include="src\model\entity\model.profissionais_pacotes_creditos.pas"/>
         <DCCReference Include="src\model\entity\model.profissionais_servicos.pas"/>
         <DCCReference Include="src\model\entity\model.servicos.pas"/>
+        <DCCReference Include="src\controller\dto\controller.dto.contatos.interfaces.pas"/>
+        <DCCReference Include="src\controller\dto\implementation\controller.dto.contatos.interfaces.impl.pas"/>
+        <DCCReference Include="src\controller\dto\controller.dto.contatos_telefones.interfaces.pas"/>
+        <DCCReference Include="src\controller\dto\implementation\controller.dto.contatos_telefones.interfaces.impl.pas"/>
+        <DCCReference Include="..\rotinas\uRotinas.pas"/>
+        <DCCReference Include="src\controller\dto\controller.dto.contatos_emails.interfaces.pas"/>
+        <DCCReference Include="src\controller\dto\implementation\controller.dto.contatos_emails.interfaces.impl.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

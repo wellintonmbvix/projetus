@@ -51,6 +51,7 @@ type
     function This: T;
     function GetRecordsNumber(aTableName: String; aFilter: String;
       var nRecords: Integer): IService<T>;
+    function GetId(aFilter: String; var aList: TObjectList<T>): IService<T>;
   end;
 
 implementation
@@ -147,6 +148,15 @@ function TServiceORMBr<T>.Update: IService<T>;
 begin
   Result := Self;
   FORMBrContainer.Update(FParent);
+end;
+
+function TServiceORMBr<T>.GetId(aFilter: String;
+  var aList: TObjectList<T>): IService<T>;
+begin
+  Result := Self;
+  aList := FORMBrContainer.FindWhere(aFilter);
+  if Assigned(aList) and (aList.Count > 0) then
+    FParent := aList.First;
 end;
 
 function TServiceORMBr<T>.GetRecordsNumber(aTableName, aFilter: String;

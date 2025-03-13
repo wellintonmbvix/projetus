@@ -26,6 +26,7 @@ type
     function This: T;
     function GetRecordsNumber(aTableName: String; aFilter: String;
       var nRecords: Integer): IService<T>;
+    function GetId(aFilter: String; var aList: TObjectList<T>): IService<T>;
   end;
 
 implementation

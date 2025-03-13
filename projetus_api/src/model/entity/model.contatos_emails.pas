@@ -21,30 +21,31 @@ uses
 type
   [Entity]
   [Table('contatos_emails', '')]
-  [PrimaryKey('id_contato_email', TAutoIncType.AutoInc,
-                           TGeneratorType.SequenceInc,
-                           TSortingOrder.NoSort,
-                           True, 'Chave primária')]
-  [Sequence('contatos_emails_id_contato_email_seq')]
-  [OrderBy('id_contato_email')]
+  [PrimaryKey('id', TAutoIncType.NotInc,
+                                  TGeneratorType.NoneInc,
+                                  TSortingOrder.NoSort,
+                                  True, 'Chave primária')]
+//  [Sequence('contatos_emails_id_contato_email_seq')]
+  [OrderBy('id')]
   Tcontatos_emails = class
   private
-    { Private declarations } 
-    Fid_contato_email: Integer;
+    { Private declarations }
+    Fid: nullable<String>;
     Fid_contato: Integer;
     Femail: String;
     Fdt_inc: TDateTime;
     Fdt_alt: nullable<TDateTime>;
     Fdt_del: nullable<TDateTime>;
-  public 
-    { Public declarations } 
+  public
+    { Public declarations }
     constructor Create;
     destructor Destroy; override;
 
-    [Column('id_contato_email', ftInteger)]
-    [Dictionary('id_contato_email', 'Mensagem de validação', '', '', '', taCenter)]
-    property id_contato_email: Integer read Fid_contato_email write Fid_contato_email;
+    [Column('id', ftString, 38)]
+    [Dictionary('id', 'Mensagem de validação', '', '', '', taCenter)]
+    property id: nullable<String> read Fid write Fid;
 
+    [Restrictions([TRestriction.NotNull])]
     [Column('id_contato', ftInteger)]
     [ForeignKey('fk_contatos_emails_contatos', 'id_contato', 'contatos', 'id_contato', Cascade, Cascade)]
     [Dictionary('id_contato', 'Mensagem de validação', '', '', '', taCenter)]

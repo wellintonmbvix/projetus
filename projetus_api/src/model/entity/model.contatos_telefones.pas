@@ -21,11 +21,16 @@ uses
 type
   [Entity]
   [Table('contatos_telefones', '')]
-  [PrimaryKey('id_contato_telefone', NotInc, NoSort, False, 'Chave primária')]
+  [PrimaryKey('id', TAutoIncType.NotInc,
+                                     TGeneratorType.NoneInc,
+                                     TSortingOrder.NoSort,
+                                     True, 'Chave primária')]
+//  [Sequence('contatos_telefones_id_contato_telefone_seq')]
+  [OrderBy('id')]
   Tcontatos_telefones = class
   private
-    { Private declarations } 
-    Fid_contato_telefone: Integer;
+    { Private declarations }
+    Fid: nullable<String>;
     Fid_contato: Integer;
     Ftelefone: String;
     Fdt_inc: TDateTime;
@@ -36,10 +41,11 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    [Column('id_contato_telefone', ftInteger)]
-    [Dictionary('id_contato_telefone', 'Mensagem de validação', '', '', '', taCenter)]
-    property id_contato_telefone: Integer read Fid_contato_telefone write Fid_contato_telefone;
+    [Column('id', ftString, 38)]
+    [Dictionary('id', 'Mensagem de validação', '', '', '', taCenter)]
+    property id: nullable<String> read Fid write Fid;
 
+    [Restrictions([TRestriction.NotNull])]
     [Column('id_contato', ftInteger)]
     [ForeignKey('fk_contatos_telefones_contatos', 'id_contato', 'contatos', 'id_contato', Cascade, Cascade)]
     [Dictionary('id_contato', 'Mensagem de validação', '', '', '', taCenter)]
