@@ -16,6 +16,7 @@ uses
   dbcbr.mapping.explorer,
   ormbr.json,
   ormbr.rtti.helper,
+  ormbr.types.blob,
 
   model.service.interfaces,
   model.service.interfaces.impl,
@@ -31,14 +32,14 @@ type
     destructor Destroy; override;
     class function New: IContatosTelefones;
 
-    function id_contato_telefone(value: String): IContatosTelefones; overload;
-    function id_contato_telefone: String; overload;
+    function id_contato_telefone(value: Integer): IContatosTelefones; overload;
+    function id_contato_telefone: Integer; overload;
 
     function id_contato(value: Integer): IContatosTelefones; overload;
     function id_contato: Integer; overload;
 
-    function telefone(value: String): IContatosTelefones; overload;
-    function telefone: String; overload;
+    function telefones(value: String): IContatosTelefones; overload;
+    function telefones: String; overload;
 
     function dt_alt(value: TDateTime): IContatosTelefones; overload;
     function dt_alt: TDateTime; overload;
@@ -103,16 +104,16 @@ begin
   Result := FEntity.id_contato;
 end;
 
-function TIContatosTelefones.id_contato_telefone: String;
+function TIContatosTelefones.id_contato_telefone: Integer;
 begin
-  Result := FEntity.id;
+  Result := FEntity.id_contato_telefone;
 end;
 
 function TIContatosTelefones.id_contato_telefone(
-  value: String): IContatosTelefones;
+  value: Integer): IContatosTelefones;
 begin
   Result := Self;
-  FEntity.id := value;
+  FEntity.id_contato_telefone := value;
 end;
 
 class function TIContatosTelefones.New: IContatosTelefones;
@@ -120,15 +121,15 @@ begin
   Result := Self.Create;
 end;
 
-function TIContatosTelefones.telefone(value: String): IContatosTelefones;
+function TIContatosTelefones.telefones(value: String): IContatosTelefones;
 begin
   Result := Self;
-  FEntity.telefone := value;
+  FEntity.telefones := value;
 end;
 
-function TIContatosTelefones.telefone: String;
+function TIContatosTelefones.telefones: String;
 begin
-  Result := FEntity.telefone;
+  Result := FEntity.telefones;
 end;
 
 end.

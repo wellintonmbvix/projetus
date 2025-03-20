@@ -149,27 +149,10 @@ begin
               if Contato.nome <> Pessoa.nome then
                 oContatos.AddPair('nome', Contato.nome);
 
-              var aTelefones := TJSONArray.Create;
-              for var i := 0 to Contato.contatos_telefones.Count - 1 do
-                begin
-                  Telefone := Contato.contatos_telefones[i];
-
-                  aTelefones.Add(Telefone.telefone);
-
-                  if i = Contato.contatos_telefones.Count - 1 then
-                    oContatos.AddPair('telefones', aTelefones);
-                end;
-
-              var aEmails := TJSONArray.Create;
-              for var i := 0 to Contato.contatos_emails.Count - 1 do
-                begin
-                  Email := Contato.contatos_emails[i];
-
-                  aEmails.Add(Email.email);
-
-                  if i = Contato.contatos_emails.Count - 1 then
-                    oContatos.AddPair('emails', aEmails);
-                end;
+              oContatos.AddPair('telefones',
+              TJSONObject.ParseJSONValue(Contato.contatos_telefones.telefones) as TJSONArray);
+              oContatos.AddPair('emails',
+              TJSONObject.ParseJSONValue(Contato.contatos_emails.emails) as TJSONArray);
 
               aContatos.AddElement(oContatos);
               oJson.AddPair('contatos', aContatos);
@@ -289,27 +272,10 @@ begin
               if Contato.nome <> Pessoa.nome then
                 oContatos.AddPair('nome', Contato.nome);
 
-              var aTelefones := TJSONArray.Create;
-              for var i := 0 to Contato.contatos_telefones.Count - 1 do
-                begin
-                  Telefone := Contato.contatos_telefones[i];
-
-                  aTelefones.Add(Telefone.telefone);
-
-                  if i = Contato.contatos_telefones.Count - 1 then
-                    oContatos.AddPair('telefones', aTelefones);
-                end;
-
-              var aEmails := TJSONArray.Create;
-              for var i := 0 to Contato.contatos_emails.Count - 1 do
-                begin
-                  Email := Contato.contatos_emails[i];
-
-                  aEmails.Add(Email.email);
-
-                  if i = Contato.contatos_emails.Count - 1 then
-                    oContatos.AddPair('emails', aEmails);
-                end;
+              oContatos.AddPair('telefones',
+              TJSONObject.ParseJSONValue(Contato.contatos_telefones.telefones) as TJSONArray);
+              oContatos.AddPair('emails',
+              TJSONObject.ParseJSONValue(Contato.contatos_emails.emails) as TJSONArray);
 
               aContatos.AddElement(oContatos);
               oJson.AddPair('contatos', aContatos);
@@ -328,7 +294,10 @@ end;
 class procedure TControllerCliente.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   oJson: TJSONObject;
+  JSONBytes: TBytes;
+  JSONString: string;
   msg: String;
+  Pessoa: Tpessoas;
   Endereco: Tenderecos;
   DadoPessoal: Tdados_pessoais;
   Contato: Tcontatos;
@@ -338,7 +307,10 @@ var
   Email: Tcontatos_emails;
   Emails: TObjectList<Tcontatos_emails>;
   contatosArray, telefonesArray, emailsArray: TJSONArray;
+  jsonValue: TJSONValue;
+  MemoryStream: TMemoryStream;
   i, j, k: Integer;
+  BlobField: TBlobField;
 begin
   if Req.Body.IsEmpty then
     raise Exception.Create('Cliente data not found');
@@ -368,65 +340,53 @@ begin
       data_nascimento := StrToDate(oJson.GetValue<String>('dados_pessoais.data_nascimento'));
     end;
 
-    // Criando os Contatos
-    Contatos := TObjectList<Tcontatos>.Create;
     contatosArray := oJson.GetValue<TJSONArray>('contatos');
 
-    for i := 0 to contatosArray.Count - 1 do
-    begin
-      Contatos.Add(Tcontatos.Create);
-
-      // Acessando os dados de cada contato
-      with Contatos.Last do
+    if contatosArray.Count > 0 then
       begin
-        nome := (contatosArray.Items[i] as TJSONObject).GetValue<String>('nome');
+        // Criando os Contatos
+        Contatos := TObjectList<Tcontatos>.Create;
 
-        // Criando Telefones
-        telefonesArray := (contatosArray.Items[i] as TJSONObject).GetValue<TJSONArray>('telefones');
-        if telefonesArray.Count > 0 then
+        for i := 0 to contatosArray.Count - 1 do
         begin
-          Telefones := TObjectList<Tcontatos_telefones>.Create;
-          for j := 0 to telefonesArray.Count - 1 do
-          begin
-            Telefones.Add(Tcontatos_telefones.Create);
-            Telefones.Last.telefone := telefonesArray.Items[j].Value;
-          end;
-          contatos_telefones := Telefones;
-          Telefones := nil;
-        end;
+          Contatos.Add(Tcontatos.Create);
 
-        // Criando Emails
-        emailsArray := (contatosArray.Items[i] as TJSONObject).GetValue<TJSONArray>('emails');
-        if emailsArray.Count > 0 then
-        begin
-          Emails := TObjectList<Tcontatos_emails>.Create;
-          for k := 0 to emailsArray.Count - 1 do
+          // Acessando os dados de cada contato
+          with Contatos.Last do
           begin
-            Emails.Add(Tcontatos_emails.Create);
-            Emails.Last.email := emailsArray.Items[k].Value;
+            nome :=  (contatosArray.Items[i] as TJSONObject).GetValue<String>('nome');
+
+            telefonesArray := (contatosArray.Items[i] as TJSONObject).GetValue<TJSONArray>('telefones');
+            if telefonesArray.Count > 0 then
+              begin
+                contatos_telefones.telefones := telefonesArray.ToString;
+                contatos_telefones.dt_inc := now();
+              end;
+
+            emailsArray := (contatosArray.Items[i] as TJSONObject).GetValue<TJSONArray>('emails');
+            if emailsArray.Count > 0 then
+            begin
+              contatos_emails.emails := emailsArray.ToString;
+              contatos_emails.dt_inc := now();
+            end;
           end;
-          contatos_emails := Emails;
-          Emails := nil;
         end;
       end;
-    end;
 
     // Criando o IPessoa e inserindo os dados no banco
     var IPessoa := TIPessoa.New;
     IPessoa
       .nome(oJson.GetValue<String>('nome'))
-      .endereco(Endereco)
-      .dados_pessoais(DadoPessoal)
       .tipo('C')
       .suspenso(false)
+      .endereco(Endereco)
+      .dados_pessoais(DadoPessoal)
       .contatos(Contatos)
-      .Build.Insert;
+    .Build.Insert;
 
-    // Respondendo com sucesso
     oJson := TJSONObject.Create;
-    oJson.AddPair('message', 'customer created successfully!');
+    oJson.AddPair('message', 'customer registered successfull!');
     Res.Send<TJSONObject>(oJson).Status(200);
-
   Except
     on E: Exception Do
     begin
@@ -466,7 +426,7 @@ var
   Pessoa: Tpessoas;
   Endereco: Tenderecos;
   DadoPessoal: Tdados_pessoais;
-  Contatos: TObjectList<Tcontatos>;
+  oContatos: TObjectList<Tcontatos>;
   oTelefone:Tcontatos_telefones;
   Telefones: TObjectList<Tcontatos_telefones>;
   oEmail: Tcontatos_emails;
@@ -514,7 +474,6 @@ else
         oJson := Req.Body<TJSONObject>;
 
         Endereco := Tenderecos.Create;
-        Endereco := Pessoa.endereco;
         With Endereco Do
           begin
             id_endereco := oJson.GetValue<Integer>('endereco.id');
@@ -529,7 +488,6 @@ else
 
         // Criando os Dados Pessoais
         DadoPessoal := Tdados_pessoais.Create;
-        DadoPessoal := Pessoa.dados_pessoais;
         with DadoPessoal do
         begin
           id_dado_pessoal := oJson.GetValue<Integer>('dados_pessoais.id');
@@ -538,81 +496,74 @@ else
           data_nascimento := StrToDate(oJson.GetValue<String>('dados_pessoais.data_nascimento'));
         end;
 
-        var IContato := TIContatos.New;
-        var IContatoTelefone := TIContatosTelefones.New;
-        var IContatoEmail := TIContatosEmails.New;
-
         // Criando os Contatos
-        Contatos := TObjectList<Tcontatos>.Create;
         contatosArray := oJson.GetValue<TJSONArray>('contatos');
 
-        for i := 0 to contatosArray.Count - 1 do
-        begin
-          Contatos.Add(Tcontatos.Create);
-
-          // Acessando os dados de cada contato
-          with Contatos.Last do
+        if contatosArray.Count > 0 then
           begin
-            id_contato := (contatosArray.Items[i] as TJSONObject).GetValue<Integer>('id');
-            nome := (contatosArray.Items[i] as TJSONObject).GetValue<String>('nome');
+            // Criando os Contatos
+            oContatos := TObjectList<Tcontatos>.Create;
 
-            // Criando Telefones
-            telefonesArray := (contatosArray.Items[i] as TJSONObject).GetValue<TJSONArray>('telefones');
-            if telefonesArray.Count > 0 then
+            for i := 0 to contatosArray.Count - 1 do
             begin
+              oContatos.Add(Tcontatos.Create);
 
-              for j := 0 to telefonesArray.Count - 1 do
+              // Acessando os dados de cada contato
+              with oContatos.Last do
               begin
-                oTelefone := IContatoTelefone.Build.ListById('id_contato',
-                Contatos.Last.id_contato).This;
-                IContatoTelefone.Build.Modify(oTelefone);
-                IContatoTelefone.Build.Delete;
-              end;
+                id_contato := (contatosArray.Items[i] as TJSONObject).GetValue<Integer>('id');
+                nome :=  (contatosArray.Items[i] as TJSONObject).GetValue<String>('nome');
 
-              for j := 0 to telefonesArray.Count - 1 do
-              begin
-                var contato_id := Contatos.Last.id_contato;
-                var telefone := telefonesArray.Items[j].Value;
-                IContatoTelefone
-                  .id_contato(Contatos.Last.id_contato)
-                  .telefone(telefonesArray.Items[j].Value)
-                  .Build.Insert;
-              end;
-            end;
+                telefonesArray := (contatosArray.Items[i] as TJSONObject).GetValue<TJSONArray>('telefones');
+                if telefonesArray.Count > 0 then
+                  begin
+                    contatos_telefones.telefones := telefonesArray.ToString;
+                    contatos_telefones.dt_inc := now();
+                  end;
 
-            // Criando Emails
-            emailsArray := (contatosArray.Items[i] as TJSONObject).GetValue<TJSONArray>('emails');
-            if emailsArray.Count > 0 then
-            begin
-
-              for k := 0 to emailsArray.Count - 1 do
-              begin
-                oEmail := IContatoEmail.Build.ListById('id_contato',
-                id_contato).This;
-                IContatoEmail.Build.Modify(oEmail);
-                IContatoEmail.Build.Delete;
-              end;
-
-              for k := 0 to emailsArray.Count - 1 do
-              begin
-                IContatoEmail
-                  .id_contato(id_contato)
-                  .email(emailsArray.Items[k].Value)
-                  .Build.Insert;
+                emailsArray := (contatosArray.Items[i] as TJSONObject).GetValue<TJSONArray>('emails');
+                if emailsArray.Count > 0 then
+                begin
+                  contatos_emails.emails := emailsArray.ToString;
+                  contatos_emails.dt_inc := now();
+                end;
               end;
             end;
           end;
-        end;
 
         IPessoa.Build.Modify(Pessoa);
         With Pessoa Do
           begin
             nome := oJson.GetValue<String>('nome');
             suspenso := oJson.GetValue<Boolean>('suspenso');
-            endereco := Endereco;
-            dados_pessoais := DadoPessoal;
-            contatos := Contatos;
             dt_alt := now();
+
+            endereco.cep := oJson.GetValue<String>('endereco.cep');
+            endereco.logradouro := oJson.GetValue<String>('endereco.logradouro');
+            endereco.numero := oJson.GetValue<String>('endereco.numero');
+            endereco.complemento := oJson.GetValue<String>('endereco.complemento');
+            endereco.bairro := oJson.GetValue<String>('endereco.bairro');
+            endereco.id_municipio := oJson.GetValue<Integer>('endereco.id_municipio');
+            endereco.id_estado := oJson.GetValue<Integer>('endereco.id_estado');
+
+            dados_pessoais.cpf := oJson.GetValue<String>('dados_pessoais.cpf');
+            dados_pessoais.identidade := oJson.GetValue<String>('dados_pessoais.identidade');
+            dados_pessoais.data_nascimento := StrToDate(oJson.GetValue<String>('dados_pessoais.data_nascimento'));
+
+            for i := 0 to contatos.Count - 1 do
+              begin
+                for j := 0 to oContatos.Count - 1 do
+                  begin
+                    if contatos[i].id_contato = oContatos[j].id_contato then
+                      begin
+                        contatos[i].nome := oContatos[j].nome;
+                        contatos[i].contatos_telefones.telefones := oContatos[j].contatos_telefones.telefones;
+                        contatos[i].contatos_emails.emails := oContatos[j].contatos_emails.emails;
+                        contatos[i].dt_alt := dt_alt;
+                      end;
+                  end;
+              end;
+
           end;
         IPessoa.Build.Update;
         oJson := TJSONObject.Create;

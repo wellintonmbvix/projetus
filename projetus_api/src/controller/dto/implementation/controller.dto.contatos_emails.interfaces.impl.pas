@@ -16,6 +16,7 @@ uses
   dbcbr.mapping.explorer,
   ormbr.json,
   ormbr.rtti.helper,
+  ormbr.types.blob,
 
   model.service.interfaces,
   model.service.interfaces.impl,
@@ -31,14 +32,14 @@ type
     destructor Destroy; override;
     class function New: IContatosEmails;
 
-    function id_contato_email(value: String): IContatosEmails; overload;
-    function id_contato_email: String; overload;
+    function id_contato_email(value: Integer): IContatosEmails; overload;
+    function id_contato_email: Integer; overload;
 
     function id_contato(value: Integer): IContatosEmails; overload;
     function id_contato: Integer; overload;
 
-    function email(value: String): IContatosEmails; overload;
-    function email: String; overload;
+    function emails(value: String): IContatosEmails; overload;
+    function emails: String; overload;
 
     function dt_alt(value: TDateTime): IContatosEmails; overload;
     function dt_alt: TDateTime; overload;
@@ -86,15 +87,15 @@ begin
   Result := FEntity.dt_del;
 end;
 
-function TIContatosEmails.email: String;
+function TIContatosEmails.emails: String;
 begin
-  Result := FEntity.email;
+  Result := FEntity.emails;
 end;
 
-function TIContatosEmails.email(value: String): IContatosEmails;
+function TIContatosEmails.emails(value: String): IContatosEmails;
 begin
   Result := Self;
-  FEntity.email := value;
+  FEntity.emails := value;
 end;
 
 function TIContatosEmails.dt_del(value: TDateTime): IContatosEmails;
@@ -114,15 +115,15 @@ begin
   Result := FEntity.id_contato;
 end;
 
-function TIContatosEmails.id_contato_email(value: String): IContatosEmails;
+function TIContatosEmails.id_contato_email(value: Integer): IContatosEmails;
 begin
   Result := Self;
-  FEntity.id := value;
+  FEntity.id_contato_email := value;
 end;
 
-function TIContatosEmails.id_contato_email: String;
+function TIContatosEmails.id_contato_email: Integer;
 begin
-  Result := FEntity.id;
+  Result := FEntity.id_contato_email;
 end;
 
 class function TIContatosEmails.New: IContatosEmails;

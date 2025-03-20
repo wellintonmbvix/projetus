@@ -4,7 +4,6 @@ interface
 
 uses
   System.Generics.Collections,
-  DBClient,
 
   model.pessoa,
   model.endereco,
@@ -13,7 +12,8 @@ uses
 
   //** ORMBr
   ormbr.types.blob,
-  model.service.interfaces;
+  model.service.interfaces,
+  model.service.scripts.interfaces;
 
 type
   IPessoa = interface
@@ -47,6 +47,7 @@ type
     function dt_del: TDateTime; overload;
 
     function Build: IService<Tpessoas>;
+    function Manufactory: IServiceScripts;
   end;
 
 implementation

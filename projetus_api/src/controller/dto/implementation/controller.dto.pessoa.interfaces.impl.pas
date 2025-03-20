@@ -19,6 +19,8 @@ uses
 
   model.service.interfaces,
   model.service.interfaces.impl,
+  model.service.scripts.interfaces,
+  model.service.scripts.interfaces.impl,
   model.pessoa,
   model.dados_pessoais,
   model.contatos,
@@ -29,6 +31,7 @@ type
   private
     FEntity: Tpessoas;
     FService: IService<Tpessoas>;
+    FServiceScript: IServiceScripts;
   public
     constructor Create;
     destructor Destroy; override;
@@ -62,6 +65,7 @@ type
     function dt_del: TDateTime; overload;
 
     function Build: IService<Tpessoas>;
+    function Manufactory: IServiceScripts;
   end;
 
 implementation
@@ -88,6 +92,7 @@ constructor TIPessoa.Create;
 begin
   FEntity := Tpessoas.Create;
   FService := TServiceORMBr<Tpessoas>.New(FEntity);
+  FServiceScript := TServiceScripts.New;
 end;
 
 function TIPessoa.dados_pessoais(value: Tdados_pessoais): IPessoa;
@@ -149,6 +154,11 @@ end;
 function TIPessoa.id_pessoa: Integer;
 begin
   Result := FEntity.id_pessoa;
+end;
+
+function TIPessoa.Manufactory: IServiceScripts;
+begin
+  Result := FServiceScript;
 end;
 
 class function TIPessoa.New: IPessoa;

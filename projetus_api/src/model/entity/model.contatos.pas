@@ -24,7 +24,7 @@ uses
 type
   [Entity]
   [Table('contatos', '')]
-  [PrimaryKey('id_contato', TAutoIncType.AutoInc,
+  [PrimaryKey('id_contato',TAutoIncType.AutoInc,
                            TGeneratorType.SequenceInc,
                            TSortingOrder.NoSort,
                            True, 'Chave primária')]
@@ -39,8 +39,8 @@ type
     Fdt_inc: TDateTime;
     Fdt_alt: nullable<TDateTime>;
     Fdt_del: nullable<TDateTime>;
-    Fcontatos_telefones: TObjectList<Tcontatos_telefones>;
-    Fcontatos_emails: TObjectList<Tcontatos_emails>;
+    Fcontatos_telefones: Tcontatos_telefones;
+    Fcontatos_emails: Tcontatos_emails;
   public
     { Public declarations }
     constructor Create;
@@ -75,27 +75,27 @@ type
       '!##/##/####;1;_', taLeftJustify)]
     property dt_del: nullable<TDateTime> read Fdt_del write Fdt_del;
 
-    [Association(TMultiplicity.OneToMany, 'id_contato', 'contatos_telefones', 'id_contato')]
+    [Association(TMultiplicity.OneToOne, 'id_contato', 'contatos_telefones', 'id_contato')]
     [CascadeActions([TCascadeAction.CascadeAutoInc,
                      TCascadeAction.CascadeInsert,
                      TCascadeAction.CascadeUpdate,
                      TCascadeAction.CascadeDelete])]
-    property contatos_telefones: TObjectList<Tcontatos_telefones> read Fcontatos_telefones write Fcontatos_telefones;
+    property contatos_telefones: Tcontatos_telefones read Fcontatos_telefones write Fcontatos_telefones;
 
-    [Association(TMultiplicity.OneToMany, 'id_contato', 'contatos_emails', 'id_contato')]
+    [Association(TMultiplicity.OneToOne, 'id_contato', 'contatos_emails', 'id_contato')]
     [CascadeActions([TCascadeAction.CascadeAutoInc,
                      TCascadeAction.CascadeInsert,
                      TCascadeAction.CascadeUpdate,
                      TCascadeAction.CascadeDelete])]
-    property contatos_emails: TObjectList<Tcontatos_emails> read Fcontatos_emails write Fcontatos_emails;
+    property contatos_emails: Tcontatos_emails read Fcontatos_emails write Fcontatos_emails;
   end;
 
 implementation
 
 constructor Tcontatos.Create;
 begin
-  Fcontatos_telefones := TObjectList<Tcontatos_telefones>.Create;
-  Fcontatos_emails := TObjectList<Tcontatos_emails>.Create;
+  Fcontatos_telefones := Tcontatos_telefones.Create;
+  Fcontatos_emails := Tcontatos_emails.Create;
 end;
 
 destructor Tcontatos.Destroy;

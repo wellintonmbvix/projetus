@@ -49,7 +49,9 @@ uses
   controller.dto.contatos_telefones.interfaces.impl in 'src\controller\dto\implementation\controller.dto.contatos_telefones.interfaces.impl.pas',
   uRotinas in '..\rotinas\uRotinas.pas',
   controller.dto.contatos_emails.interfaces in 'src\controller\dto\controller.dto.contatos_emails.interfaces.pas',
-  controller.dto.contatos_emails.interfaces.impl in 'src\controller\dto\implementation\controller.dto.contatos_emails.interfaces.impl.pas';
+  controller.dto.contatos_emails.interfaces.impl in 'src\controller\dto\implementation\controller.dto.contatos_emails.interfaces.impl.pas',
+  model.service.scripts.interfaces in 'src\model\service\model.service.scripts.interfaces.pas',
+  model.service.scripts.interfaces.impl in 'src\model\service\impl\model.service.scripts.interfaces.impl.pas';
 
 begin
 {$IFDEF MSWINDOWS}

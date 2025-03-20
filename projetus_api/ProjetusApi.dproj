@@ -154,6 +154,8 @@
         <DCCReference Include="..\rotinas\uRotinas.pas"/>
         <DCCReference Include="src\controller\dto\controller.dto.contatos_emails.interfaces.pas"/>
         <DCCReference Include="src\controller\dto\implementation\controller.dto.contatos_emails.interfaces.impl.pas"/>
+        <DCCReference Include="src\model\service\model.service.scripts.interfaces.pas"/>
+        <DCCReference Include="src\model\service\impl\model.service.scripts.interfaces.impl.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

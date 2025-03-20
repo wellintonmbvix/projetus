@@ -16,14 +16,14 @@ type
   IContatosEmails = interface
     ['{860A39D4-8B23-413E-AACD-A77028FB9918}']
 
-    function id_contato_email(value: String): IContatosEmails; overload;
-    function id_contato_email: String; overload;
+    function id_contato_email(value: Integer): IContatosEmails; overload;
+    function id_contato_email: Integer; overload;
 
     function id_contato(value: Integer): IContatosEmails; overload;
     function id_contato: Integer; overload;
 
-    function email(value: String): IContatosEmails; overload;
-    function email: String; overload;
+    function emails(value: String): IContatosEmails; overload;
+    function emails: String; overload;
 
     function dt_alt(value: TDateTime): IContatosEmails; overload;
     function dt_alt: TDateTime; overload;

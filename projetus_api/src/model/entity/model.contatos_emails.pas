@@ -21,18 +21,18 @@ uses
 type
   [Entity]
   [Table('contatos_emails', '')]
-  [PrimaryKey('id', TAutoIncType.NotInc,
+  [PrimaryKey('id_contato_email', TAutoIncType.AutoInc,
                                   TGeneratorType.NoneInc,
                                   TSortingOrder.NoSort,
                                   True, 'Chave primária')]
-//  [Sequence('contatos_emails_id_contato_email_seq')]
-  [OrderBy('id')]
+  [Sequence('contatos_emails_id_contato_email_seq')]
+  [OrderBy('id_contato_email')]
   Tcontatos_emails = class
   private
     { Private declarations }
-    Fid: nullable<String>;
+    Fid_contato_email: nullable<Integer>;
     Fid_contato: Integer;
-    Femail: String;
+    Femails: String;
     Fdt_inc: TDateTime;
     Fdt_alt: nullable<TDateTime>;
     Fdt_del: nullable<TDateTime>;
@@ -41,9 +41,9 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    [Column('id', ftString, 38)]
-    [Dictionary('id', 'Mensagem de validação', '', '', '', taCenter)]
-    property id: nullable<String> read Fid write Fid;
+    [Column('id_contato_email', ftInteger)]
+    [Dictionary('id_contato_email', 'Mensagem de validação', '', '', '', taCenter)]
+    property id_contato_email: nullable<Integer> read Fid_contato_email write Fid_contato_email;
 
     [Restrictions([TRestriction.NotNull])]
     [Column('id_contato', ftInteger)]
@@ -51,9 +51,9 @@ type
     [Dictionary('id_contato', 'Mensagem de validação', '', '', '', taCenter)]
     property id_contato: Integer read Fid_contato write Fid_contato;
 
-    [Column('email', ftString, 120)]
-    [Dictionary('email', 'Mensagem de validação', '', '', '', taLeftJustify)]
-    property email: String read Femail write Femail;
+    [Column('emails', ftMemo)]
+    [Dictionary('Emails', 'Mensagem de validação', '', '', '', taLeftJustify)]
+    property emails: String read Femails write Femails;
 
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('dt_inc', ftDateTime)]
