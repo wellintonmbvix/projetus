@@ -27,8 +27,6 @@ uses
   System.zip,
   System.Generics.Collections,
 
-  JVDBGrid,
-
   FireDAC.Stan.Intf,
   FireDAC.Stan.Option,
   FireDAC.Stan.Error,

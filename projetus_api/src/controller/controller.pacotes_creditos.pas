@@ -93,8 +93,8 @@ begin
           oJson.AddPair('id_pacote_credito', pacote_credito.id_pacote_credito.ToString);
           oJson.AddPair('nome', pacote_credito.nome);
           oJson.AddPair('creditos', pacote_credito.creditos.ToString);
-          oJson.AddPair('valor_compra', pacote_credito.valor_compra);
-          oJson.AddPair('dias_expiracao', pacote_credito.dias_expiracao);
+          oJson.AddPair('valor_compra', FormatFloat('###,##0.00',pacote_credito.valor_compra));
+          oJson.AddPair('dias_expiracao', pacote_credito.dias_expiracao.ToString());
           oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', pacote_credito.dt_inc));
           if pacote_credito.dt_alt.HasValue then
             oJson.AddPair('alterado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', pacote_credito.dt_alt.Value))
@@ -164,8 +164,8 @@ begin
         oJson.AddPair('id_pacote_credito', PacoteCredito.id_pacote_credito.ToString);
         oJson.AddPair('nome', PacoteCredito.nome);
         oJson.AddPair('creditos', PacoteCredito.creditos.ToString);
-        oJson.AddPair('valor_compra', PacoteCredito.valor_compra);
-        oJson.AddPair('dias_expiracao', PacoteCredito.dias_expiracao);
+        oJson.AddPair('valor_compra', FormatFloat('###,##0.00',PacoteCredito.valor_compra));
+        oJson.AddPair('dias_expiracao', PacoteCredito.dias_expiracao.ToString());
         oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', PacoteCredito.dt_inc));
         if PacoteCredito.dt_alt.HasValue then
           oJson.AddPair('alterado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', PacoteCredito.dt_alt.Value))

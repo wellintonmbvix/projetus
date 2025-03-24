@@ -234,7 +234,7 @@ begin
         oJson.AddPair('nome', Pessoa.nome);
 
             var endereco := TJSONObject.Create;
-            endereco.AddPair('id', Pessoa.endereco.id_endereco);
+            endereco.AddPair('id', Pessoa.endereco.id_endereco.ToString());
             endereco.AddPair('cep', Pessoa.endereco.cep);
             endereco.AddPair('logradouro', Pessoa.endereco.logradouro);
             endereco.AddPair('numero', Pessoa.endereco.numero);
@@ -244,7 +244,7 @@ begin
             endereco.AddPair('estado', Pessoa.endereco.estado);
 
             var dados_pessoais := TJSONObject.Create;
-            dados_pessoais.AddPair('id', Pessoa.dados_pessoais.id_dado_pessoal);
+            dados_pessoais.AddPair('id', Pessoa.dados_pessoais.id_dado_pessoal.ToString());
             if Pessoa.dados_pessoais.cpf.HasValue then
               dados_pessoais.AddPair('cpf', Pessoa.dados_pessoais.cpf.Value)
             else
@@ -268,7 +268,7 @@ begin
             begin
               var aContatos := TJSONArray.Create;
               var oContatos := TJSONObject.Create;
-              oContatos.AddPair('id', Contato.id_contato);
+              oContatos.AddPair('id', Contato.id_contato.ToString());
               if Contato.nome <> Pessoa.nome then
                 oContatos.AddPair('nome', Contato.nome);
 
