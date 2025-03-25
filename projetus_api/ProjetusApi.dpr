@@ -53,7 +53,8 @@ uses
   model.service.scripts.interfaces in 'src\model\service\model.service.scripts.interfaces.pas',
   model.service.scripts.interfaces.impl in 'src\model\service\impl\model.service.scripts.interfaces.impl.pas',
   controller.dto.servicos.interfaces in 'src\controller\dto\controller.dto.servicos.interfaces.pas',
-  controller.dto.servicos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.servicos.interfaces.impl.pas';
+  controller.dto.servicos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.servicos.interfaces.impl.pas',
+  controller.servicos in 'src\controller\controller.servicos.pas';
 
 begin
 {$IFDEF MSWINDOWS}

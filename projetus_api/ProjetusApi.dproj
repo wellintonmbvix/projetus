@@ -158,6 +158,7 @@
         <DCCReference Include="src\model\service\impl\model.service.scripts.interfaces.impl.pas"/>
         <DCCReference Include="src\controller\dto\controller.dto.servicos.interfaces.pas"/>
         <DCCReference Include="src\controller\dto\implementation\controller.dto.servicos.interfaces.impl.pas"/>
+        <DCCReference Include="src\controller\controller.servicos.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
