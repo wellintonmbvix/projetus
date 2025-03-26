@@ -37,8 +37,49 @@ implementation
 
 class procedure TControllerPacotesCreditos.Delete(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
+var
+  oJson : TJSONObject;
+  id: Integer;
 begin
+   oJson := TJSONObject.Create;
+  if Req.Params.Count = 0 then
+    begin
+        oJson.AddPair('error', 'id service not found');
+      Res.Send<TJSONObject>(oJson).Status(500);
+      Exit;
+    end
+  else
+    id := Req.Params.Items['id'].ToInteger();
 
+  var
+  IPacoteCredito := TIPacoteCreditos.New;
+  var
+  PacoteCredito: Tpacotes_creditos;
+
+  PacoteCredito := IPacoteCredito.Build.ListById('id_pacote_credito',
+    id, PacoteCredito).This;
+
+  if PacoteCredito = nil then
+    begin
+      oJson.AddPair('error', 'credit packs not found');
+      Res.Send<TJSONObject>(oJson).Status(404);
+      Exit;
+    end
+    else
+      if PacoteCredito.dt_del.HasValue then
+        begin
+          oJson := TJSONObject.Create;
+          oJson.AddPair('message', 'deleted record');
+          Res.Send<TJSONObject>(oJson).Status(404);
+          Exit;
+        end;
+
+  IPacoteCredito.Build.Modify(PacoteCredito);
+  PacoteCredito.dt_del := now();
+  IPacoteCredito.Build.Update;
+
+  oJson.AddPair('message', 'successfully credit packs deleted');
+  Res.Send<TJSONObject>(oJson).Status(404);
 end;
 
 class procedure TControllerPacotesCreditos.GetAll(Req: THorseRequest;
@@ -183,7 +224,7 @@ var
   msg: String;
 begin
   if Req.Body.IsEmpty then
-    raise Exception.Create('Pacote Créditos data not found');
+    raise Exception.Create('credit packs data not found');
   oJson := Req.Body<TJSONObject>;
 
   Try
@@ -196,7 +237,7 @@ begin
     .Build.Insert;
 
     oJson := TJSONObject.Create;
-    oJson.AddPair('message', 'pacote criado com sucesso!');
+    oJson.AddPair('message', 'credit packs created successfully!');
     Res.Send<TJSONObject>(oJson).Status(200);
   Except
     on E: Exception Do
@@ -210,8 +251,71 @@ end;
 
 class procedure TControllerPacotesCreditos.Put(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
+var
+  oJson: TJSONObject;
+  PacoteCredito: Tpacotes_creditos;
+  id: Integer;
 begin
+  oJson := TJSONObject.Create;
+  if Req.Params.Count = 0 then
+    begin
+      oJson.AddPair('error', 'credit packs id not found');
+      Res.Send<TJSONObject>(oJson).Status(500);
+    end
+  else
+    if Req.Body.IsEmpty then
+      begin
+        oJson.AddPair('error', 'request body not found');
+        Res.Send<TJSONObject>(oJson).Status(500);
+      end
+    else
+      begin
+        id := Req.Params.Items['id'].ToInteger();
 
+        Try
+          var
+          IPacoteCreditos := TIPacoteCreditos.New;
+          PacoteCredito := IPacoteCreditos.Build.ListById('id_pacote_credito', id, PacoteCredito).This;
+
+          if (PacoteCredito = nil) Or (PacoteCredito.id_pacote_credito = 0) then
+            begin
+              oJson.AddPair('error', 'credit packs not found');
+              Res.Send<TJSONObject>(oJson).Status(404);
+              Exit;
+            end
+          else
+            if PacoteCredito.dt_del.HasValue then
+              begin
+                oJson := TJSONObject.Create;
+                oJson.AddPair('message', 'deleted record');
+                Res.Send<TJSONObject>(oJson).Status(404);
+                Exit;
+              end;
+
+          oJson := Req.Body<TJSONObject>;
+          IPacoteCreditos.Build.Modify(PacoteCredito);
+          With PacoteCredito Do
+            begin
+              nome := oJson.GetValue<String>('nome');
+              creditos := oJson.GetValue<Integer>('creditos');
+              valor_compra := oJson.GetValue<Currency>('valor_compra');
+              dias_expiracao := oJson.GetValue<Integer>('dias_expiracao');
+              dt_alt := now();
+            end;
+
+          IPacoteCreditos.Build.Update;
+          oJson := TJSONObject.Create;
+          oJson.AddPair('message', 'credit packs changed successfull!');
+          Res.Send<TJSONObject>(oJson).Status(200);
+        Except
+          on E: Exception Do
+            begin
+              oJson := TJSONObject.Create;
+              oJson.AddPair('error', E.Message);
+              Res.Send<TJSONObject>(oJson).Status(500);
+            end;
+        End;
+      end;
 end;
 
 class procedure TControllerPacotesCreditos.Registry;

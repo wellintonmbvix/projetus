@@ -37,8 +37,48 @@ implementation
 
 class procedure TControllerServicos.Delete(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
+var
+  oJson : TJSONObject;
+  id: Integer;
 begin
+   oJson := TJSONObject.Create;
+  if Req.Params.Count = 0 then
+    begin
+        oJson.AddPair('error', 'id service not found');
+      Res.Send<TJSONObject>(oJson).Status(500);
+      Exit;
+    end
+  else
+    id := Req.Params.Items['id'].ToInteger();
 
+  var
+  IServico := TIServicos.New;
+  var
+  Servico: Tservicos;
+
+  Servico := IServico.Build.ListById('id_servico', id, Servico).This;
+
+  if Servico = nil then
+    begin
+      oJson.AddPair('error', 'service not found');
+      Res.Send<TJSONObject>(oJson).Status(404);
+      Exit;
+    end
+    else
+      if Servico.dt_del.HasValue then
+        begin
+          oJson := TJSONObject.Create;
+          oJson.AddPair('message', 'deleted record');
+          Res.Send<TJSONObject>(oJson).Status(404);
+          Exit;
+        end;
+
+  IServico.Build.Modify(Servico);
+  Servico.dt_del := now();
+  IServico.Build.Update;
+
+  oJson.AddPair('message', 'successfully service deleted');
+  Res.Send<TJSONObject>(oJson).Status(404);
 end;
 
 class procedure TControllerServicos.GetAll(Req: THorseRequest;
@@ -59,7 +99,7 @@ begin
     page := Req.Query['page'];
     perPage := Req.Query['perPage'];
 
-    filter := 'dt_del is null AND tipo = ''C''';
+    filter := 'dt_del is null';
     if nome <> EmptyStr then
       filter := filter + ' AND nome LIKE '+QuotedStr('%'+nome+'%');
 
@@ -112,20 +152,145 @@ end;
 
 class procedure TControllerServicos.GetOne(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
+var
+  id: Integer;
 begin
+  if Req.Params.Count = 0 then
+    begin
+      var oJson := TJSONObject.Create;
+        oJson.AddPair('error', 'id service not found');
+      Res.Send<TJSONObject>(oJson).Status(500);
+      Exit;
+    end
+  else
+    id := Req.Params.Items['id'].ToInteger();
 
+  var
+  IServicos := TIServicos.New;
+  var
+  Servico: Tservicos;
+
+  IServicos.Build.ListById('id_servicos', id, Servico);
+  if Servico = nil then
+    begin
+      var oJson := TJSONObject.Create;
+        oJson.AddPair('message', 'service not found');
+      Res.Send<TJSONObject>(oJson).Status(404);
+    end
+  else
+    begin
+      if Servico.dt_del.HasValue then
+        begin
+          var oJson := TJSONObject.Create;
+          oJson.AddPair('message', 'service not found');
+          Res.Send<TJSONObject>(oJson).Status(404);
+        end
+      else
+        begin
+          var oJson := TJSONObject.Create;
+          oJson.AddPair('id_servico', Servico.id_servico.ToString);
+          oJson.AddPair('nome', Servico.nome);
+          oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', Servico.dt_inc));
+          if Servico.dt_alt.HasValue then
+            oJson.AddPair('alterado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', Servico.dt_alt.Value))
+          else
+            oJson.AddPair('alterado_em', TJSONNull.Create);
+
+          Res.Send<TJSONObject>(oJson).Status(200);
+        end;
+    end;
 end;
 
 class procedure TControllerServicos.Post(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
+var
+  oJson: TJSONObject;
 begin
+  if Req.Body.IsEmpty then
+    raise Exception.Create('service data not found');
 
+  oJson := Req.Body<TJSONObject>;
+  Try
+    var
+    IServicos  := TIServicos.New;
+    IServicos
+      .nome(oJson.GetValue<String>('nome'))
+     .Build.Insert;
+
+    oJson := TJSONObject.Create;
+    oJson.AddPair('message', 'service registered successfull!');
+    Res.Send<TJSONObject>(oJson).Status(200);
+  Except
+    on E: Exception Do
+    begin
+      // Respondendo com erro
+      oJson := TJSONObject.Create;
+      oJson.AddPair('error', E.Message);
+      Res.Send<TJSONObject>(oJson).Status(500);
+    end;
+  End;
 end;
 
 class procedure TControllerServicos.Put(Req: THorseRequest; Res: THorseResponse;
   Next: TProc);
+var
+  oJson: TJSONObject;
+  Servico: Tservicos;
+  id: Integer;
 begin
+  oJson := TJSONObject.Create;
+  if Req.Params.Count = 0 then
+    begin
+      oJson.AddPair('error', 'id service not found');
+      Res.Send<TJSONObject>(oJson).Status(500);
+    end
+  else
+    if Req.Body.IsEmpty then
+      begin
+        oJson.AddPair('error', 'request body not found');
+        Res.Send<TJSONObject>(oJson).Status(500);
+      end
+    else
+      begin
+        id := Req.Params.Items['id'].ToInteger();
 
+        Try
+          var
+          IServicos := TIServicos.New;
+          Servico := IServicos.Build.ListById('id_servico', id, Servico).This;
+
+          if (Servico = nil) Or (Servico.id_servico = 0) then
+            begin
+              oJson.AddPair('error', 'service not found');
+              Res.Send<TJSONObject>(oJson).Status(404);
+              Exit;
+            end
+          else
+            if Servico.dt_del.HasValue then
+              begin
+                oJson := TJSONObject.Create;
+                oJson.AddPair('message', 'deleted record');
+                Res.Send<TJSONObject>(oJson).Status(404);
+                Exit;
+              end;
+
+          oJson := Req.Body<TJSONObject>;
+          IServicos.Build.Modify(Servico);
+          Servico.nome := oJson.GetValue<String>('nome');
+          Servico.dt_alt := now();
+          IServicos.Build.Update;
+          oJson := TJSONObject.Create;
+          oJson.AddPair('message', 'service changed successfull!');
+          Res.Send<TJSONObject>(oJson).Status(200);
+        Except
+          on E: Exception Do
+            begin
+              oJson := TJSONObject.Create;
+              oJson.AddPair('error', E.Message);
+              Res.Send<TJSONObject>(oJson).Status(500);
+            end;
+        End;
+      end;
 end;
 
 class procedure TControllerServicos.Registry;

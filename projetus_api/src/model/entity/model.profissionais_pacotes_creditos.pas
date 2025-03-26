@@ -22,38 +22,48 @@ type
 
   [Entity]
   [Table('profissionais_pacotes_creditos', '')]
-  [PrimaryKey('id_profissional_pacote', TAutoIncType.AutoInc,
+  [PrimaryKey('id_profissional_pacote_credito', TAutoIncType.AutoInc,
                                         TGeneratorType.SequenceInc,
                                         TSortingOrder.NoSort,
                                         True, 'Chave primária')]
   [Sequence('profissionais_pacotes_creditos_id_profissional_pacote_seq')]
-  [OrderBy('id_profissional_pacote')]
+  [OrderBy('id_profissional_pacote_credito')]
   Tprofissionais_pacotes_creditos = class
   private
     { Private declarations }
-    Fid_profissional_pacote: Integer;
+    Fid_profissional_pacote_credito: Integer;
     Fid_pessoa: Integer;
     Fid_pacote_credito: Integer;
     Fdata_validade: TDateTime;
     Fdt_inc: TDateTime;
     Fdt_alt: nullable<TDateTime>;
     Fdt_del: nullable<TDateTime>;
+    Fprofissional: nullable<String>;
+    Fpacote: nullable<String>;
+    Fdias_expirar: Integer;
   public
     { Public declarations }
     constructor Create;
     destructor Destroy; override;
 
-    [Column('id_profissional_pacote', ftInteger)]
-    [Dictionary('id_profissional_pacote', 'Mensagem de validação', '', '', '',
+    [Column('id_profissional_pacote_credito', ftInteger)]
+    [Dictionary('id_profissional_pacote_credito', 'Mensagem de validação', '', '', '',
       taCenter)]
-    property id_profissional_pacote: Integer read Fid_profissional_pacote
-      write Fid_profissional_pacote;
+    property id_profissional_pacote_credito: Integer read Fid_profissional_pacote_credito
+      write Fid_profissional_pacote_credito;
 
     [Column('id_pessoa', ftInteger)]
     [ForeignKey('fk_profissionais_pacotes_creditos_pessoas', 'id_pessoa',
       'pessoas', 'id_pessoa', Cascade, Cascade)]
     [Dictionary('id_pessoa', 'Mensagem de validação', '', '', '', taCenter)]
     property id_pessoa: Integer read Fid_pessoa write Fid_pessoa;
+
+    [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
+    [Column('profissional', ftString, 60)]
+    [JoinColumn('id_pessoa', 'pessoas', 'id_pessoa', 'nome',
+      TJoin.InnerJoin, 'profissional')]
+    [Dictionary('profissional', '')]
+    property profissional: nullable<String> read Fprofissional write Fprofissional;
 
     [Column('id_pacote_credito', ftInteger)]
     [ForeignKey('fk_profissionais_pacotes_creditos_pacotes_creditos',
@@ -64,7 +74,21 @@ type
     property id_pacote_credito: Integer read Fid_pacote_credito
       write Fid_pacote_credito;
 
-    [Column('data_validade', ftTime)]
+    [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
+    [Column('pacote', ftString, 60)]
+    [JoinColumn('id_pacote_credito', 'pacotes_creditos', 'id_pacote_credito', 'nome',
+      TJoin.InnerJoin, 'pacote')]
+    [Dictionary('pacote', '')]
+    property pacote: nullable<String> read Fpacote write Fpacote;
+
+    [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
+    [Column('dias_expirar', ftInteger)]
+    [JoinColumn('id_pacote_credito', 'pacotes_creditos', 'id_pacote_credito',
+     'dias_expiracao', TJoin.InnerJoin, 'dias_expirar')]
+    [Dictionary('dias_expirar', '')]
+    property dias_expirar: Integer read Fdias_expirar write Fdias_expirar;
+
+    [Column('data_validade', ftDateTime)]
     [Dictionary('data_validade', 'Mensagem de validação', '', '', '', taCenter)]
     property data_validade: TDateTime read Fdata_validade write Fdata_validade;
 

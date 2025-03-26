@@ -54,7 +54,14 @@ uses
   model.service.scripts.interfaces.impl in 'src\model\service\impl\model.service.scripts.interfaces.impl.pas',
   controller.dto.servicos.interfaces in 'src\controller\dto\controller.dto.servicos.interfaces.pas',
   controller.dto.servicos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.servicos.interfaces.impl.pas',
-  controller.servicos in 'src\controller\controller.servicos.pas';
+  controller.servicos in 'src\controller\controller.servicos.pas',
+  controller.profissional in 'src\controller\controller.profissional.pas',
+  controller.dto.profissionais_pacotes_creditos.interfaces in 'src\controller\dto\controller.dto.profissionais_pacotes_creditos.interfaces.pas',
+  controller.dto.profissionais_pacotes_creditos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.profissionais_pacotes_creditos.interfaces.impl.pas',
+  controller.profissionais_pacotes_creditos in 'src\controller\controller.profissionais_pacotes_creditos.pas',
+  controller.dto.profissionais_servicos.interfaces in 'src\controller\dto\controller.dto.profissionais_servicos.interfaces.pas',
+  controller.dto.profissionais_servicos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.profissionais_servicos.interfaces.impl.pas',
+  controller.profissionais_servicos in 'src\controller\controller.profissionais_servicos.pas';
 
 begin
 {$IFDEF MSWINDOWS}
@@ -78,6 +85,10 @@ begin
   // Controllers
   TControllerCliente.Registry;
   TControllerPacotesCreditos.Registry;
+  TControllerServicos.Registry;
+  TControllerProfissional.Registry;
+  TControllerProfissionalPacoteCredito.Registry;
+  TControllerProfissionaisServicos.Registry;
 
   // Gerando documentação SWAGGER
   Swagger

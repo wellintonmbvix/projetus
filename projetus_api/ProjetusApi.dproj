@@ -159,6 +159,13 @@
         <DCCReference Include="src\controller\dto\controller.dto.servicos.interfaces.pas"/>
         <DCCReference Include="src\controller\dto\implementation\controller.dto.servicos.interfaces.impl.pas"/>
         <DCCReference Include="src\controller\controller.servicos.pas"/>
+        <DCCReference Include="src\controller\controller.profissional.pas"/>
+        <DCCReference Include="src\controller\dto\controller.dto.profissionais_pacotes_creditos.interfaces.pas"/>
+        <DCCReference Include="src\controller\dto\implementation\controller.dto.profissionais_pacotes_creditos.interfaces.impl.pas"/>
+        <DCCReference Include="src\controller\controller.profissionais_pacotes_creditos.pas"/>
+        <DCCReference Include="src\controller\dto\controller.dto.profissionais_servicos.interfaces.pas"/>
+        <DCCReference Include="src\controller\dto\implementation\controller.dto.profissionais_servicos.interfaces.impl.pas"/>
+        <DCCReference Include="src\controller\controller.profissionais_servicos.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

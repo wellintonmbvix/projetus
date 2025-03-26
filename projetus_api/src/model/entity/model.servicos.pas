@@ -21,7 +21,12 @@ uses
 type
   [Entity]
   [Table('servicos', '')]
-  [PrimaryKey('id_servico', NotInc, NoSort, False, 'Chave primária')]
+  [PrimaryKey('id_servico', TAutoIncType.AutoInc,
+                           TGeneratorType.SequenceInc,
+                           TSortingOrder.NoSort,
+                           True, 'Chave primária')]
+  [Sequence('servicos_id_servico_seq')]
+  [OrderBy('id_servico')]
   Tservicos = class
   private
     { Private declarations } 

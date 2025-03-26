@@ -1,4 +1,4 @@
-unit controller.cliente;
+unit controller.profissional;
 
 interface
 
@@ -32,31 +32,66 @@ uses
   controller.dto.contatos_emails.interfaces.impl;
 
 type
-  TControllerCliente = class
+  TControllerProfissional = class
     class procedure Registry;
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-    class procedure PostList(Req: THorseRequest; Res: THorseResponse; Next: TProc);
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
 implementation
 
-{ TControllerCliente }
+{ TControllerProfissional }
 
-class procedure TControllerCliente.Registry;
+class procedure TControllerProfissional.Delete(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
+var
+  oJson : TJSONObject;
+  msg: String;
+  id: Integer;
 begin
-  THorse.Get('api/v1/clientes', GetAll)
-        .Get('api/v1/clientes/:id', GetOne)
-        .Post('api/v1/clientes', Post)
-        .Post('api/v1/clientes/lista', PostList)
-        .Put('api/v1/clientes/:id', Put)
-        .Delete('api/v1/clientes/:id/delete', Delete);
+   oJson := TJSONObject.Create;
+  if Req.Params.Count = 0 then
+    begin
+        oJson.AddPair('error', 'id professional not found');
+      Res.Send<TJSONObject>(oJson).Status(500);
+      Exit;
+    end
+  else
+    id := Req.Params.Items['id'].ToInteger();
+
+  var IPessoa := TIPessoa.New;
+  var Pessoa: Tpessoas;
+
+  Pessoa := IPessoa.Build.ListById('id_pessoa', id, Pessoa).This;
+
+  if Pessoa = nil then
+    begin
+      oJson.AddPair('error', 'professional not found');
+      Res.Send<TJSONObject>(oJson).Status(404);
+      Exit;
+    end
+    else
+      if Pessoa.dt_del.HasValue then
+        begin
+          oJson := TJSONObject.Create;
+          oJson.AddPair('message', 'deleted record');
+          Res.Send<TJSONObject>(oJson).Status(404);
+          Exit;
+        end;
+
+  IPessoa.Build.Modify(Pessoa);
+  Pessoa.dt_del := now();
+  IPessoa.Build.Update;
+
+  oJson.AddPair('message', 'successfully professional deleted');
+  Res.Send<TJSONObject>(oJson).Status(404);
 end;
 
-class procedure TControllerCliente.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+class procedure TControllerProfissional.GetAll(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
 var
   Pessoas: TObjectList<Tpessoas>;
   Pessoa: Tpessoas;
@@ -84,7 +119,7 @@ begin
       page := Req.Query['page'];
       perPage := Req.Query['perPage'];
 
-      filter := 'dt_del is null AND tipo = ''C''';
+      filter := 'dt_del is null AND tipo = ''P''';
       if nome <> EmptyStr then
         filter := filter + ' AND nome LIKE '+QuotedStr('%'+nome+'%');
 
@@ -110,17 +145,45 @@ begin
       for Pessoa in Pessoas do
         begin
           oJson := TJSONObject.Create;
-          oJson.AddPair('id_cliente', Pessoa.id_pessoa.ToString);
+          oJson.AddPair('id_profissional', Pessoa.id_pessoa.ToString);
           oJson.AddPair('nome', Pessoa.nome);
 
             var endereco := TJSONObject.Create;
-            endereco.AddPair('cep', Pessoa.endereco.cep);
-            endereco.AddPair('logradouro', Pessoa.endereco.logradouro);
-            endereco.AddPair('numero', Pessoa.endereco.numero);
-            endereco.AddPair('complemento', Pessoa.endereco.complemento);
-            endereco.AddPair('bairro', Pessoa.endereco.bairro);
-            endereco.AddPair('municipio', Pessoa.endereco.municipio);
-            endereco.AddPair('estado', Pessoa.endereco.estado);
+
+            if Pessoa.endereco.cep.HasValue then
+              endereco.AddPair('cep', Pessoa.endereco.cep)
+            else
+              endereco.AddPair('cep', TJSONNull.Create);
+
+            if Pessoa.endereco.logradouro.HasValue then
+              endereco.AddPair('logradouro', Pessoa.endereco.logradouro)
+            else
+              endereco.AddPair('logradouro', TJSONNull.Create);
+
+            if Pessoa.endereco.numero.HasValue then
+              endereco.AddPair('numero', Pessoa.endereco.numero)
+            else
+              endereco.AddPair('numero', TJSONNull.Create);
+
+            if Pessoa.endereco.complemento.HasValue then
+              endereco.AddPair('complemento', Pessoa.endereco.complemento)
+            else
+              endereco.AddPair('complemento', TJSONNull.Create);
+
+            if Pessoa.endereco.bairro.HasValue then
+              endereco.AddPair('bairro', Pessoa.endereco.bairro)
+            else
+              endereco.AddPair('bairro', TJSONNull.Create);
+
+            if Pessoa.endereco.municipio.HasValue then
+              endereco.AddPair('municipio', Pessoa.endereco.municipio)
+            else
+              endereco.AddPair('municipio', TJSONNull.Create);
+
+            if Pessoa.endereco.estado.HasValue then
+              endereco.AddPair('estado', Pessoa.endereco.estado)
+            else
+              endereco.AddPair('estado', TJSONNull.Create);
 
             var dados_pessoais := TJSONObject.Create;
             if Pessoa.dados_pessoais.cpf.HasValue then
@@ -191,7 +254,8 @@ begin
   End;
 end;
 
-class procedure TControllerCliente.GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+class procedure TControllerProfissional.GetOne(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
 var
   id: Integer;
   Contato : Tcontatos;
@@ -201,7 +265,7 @@ begin
   if Req.Params.Count = 0 then
     begin
       var oJson := TJSONObject.Create;
-        oJson.AddPair('error', 'id customer not found');
+        oJson.AddPair('error', 'id professional not found');
       Res.Send<TJSONObject>(oJson).Status(500);
       Exit;
     end
@@ -230,7 +294,7 @@ begin
     else
       begin
         var oJson := TJSONObject.Create;
-        oJson.AddPair('id_cliente', Pessoa.id_pessoa.ToString);
+        oJson.AddPair('id_profissional', Pessoa.id_pessoa.ToString);
         oJson.AddPair('nome', Pessoa.nome);
 
             var endereco := TJSONObject.Create;
@@ -291,7 +355,8 @@ begin
       end;
 end;
 
-class procedure TControllerCliente.Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+class procedure TControllerProfissional.Post(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
 var
   oJson: TJSONObject;
   JSONBytes: TBytes;
@@ -377,7 +442,7 @@ begin
     var IPessoa := TIPessoa.New;
     IPessoa
       .nome(oJson.GetValue<String>('nome'))
-      .tipo('C')
+      .tipo('P')
       .suspenso(false)
       .endereco(Endereco)
       .dados_pessoais(DadoPessoal)
@@ -398,28 +463,8 @@ begin
   End;
 end;
 
-class procedure TControllerCliente.PostList(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-var
-  jsonObj, oJson: TJSONObject;
-  ja: TJSONArray;
-  jv: TJSONValue;
-begin
-  ja:= Req.Body<TJSONArray>;
-  var IPessoa := TIPessoa.New;
-  for var i := 0 to ja.size - 1 do
-    begin
-      oJson := (ja.Get(i) as TJSONObject);
-      jv := oJson.Get(0).JsonValue;
-      IPessoa
-              .nome(oJson.GetValue<String>('nome'))
-      .Build.Insert;
-    end;
-    oJson := TJSONObject.Create;
-    oJson.AddPair('message', 'procedimento realizado com sucesso!');
-    Res.Send<TJSONObject>(oJson).Status(200);
-end;
-
-class procedure TControllerCliente.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+class procedure TControllerProfissional.Put(Req: THorseRequest;
+  Res: THorseResponse; Next: TProc);
 var
   oJson : TJSONObject;
   msg: String;
@@ -438,7 +483,7 @@ begin
 
 if Req.Params.Count = 0 then
   begin
-    oJson.AddPair('error', 'id customer not found');
+    oJson.AddPair('error', 'id professional not found');
     Res.Send<TJSONObject>(oJson).Status(500);
   end
 else
@@ -458,7 +503,7 @@ else
 
         if (Pessoa = nil) Or (Pessoa.id_pessoa = 0) then
           begin
-            oJson.AddPair('error', 'customer not found');
+            oJson.AddPair('error', 'professional not found');
             Res.Send<TJSONObject>(oJson).Status(404);
             Exit;
           end
@@ -567,7 +612,7 @@ else
           end;
         IPessoa.Build.Update;
         oJson := TJSONObject.Create;
-        oJson.AddPair('message', 'customer changed successfull!');
+        oJson.AddPair('message', 'professional changed successfull!');
         Res.Send<TJSONObject>(oJson).Status(200);
 
       Except
@@ -581,48 +626,13 @@ else
     end;
 end;
 
-class procedure TControllerCliente.Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-var
-  oJson : TJSONObject;
-  msg: String;
-  id: Integer;
+class procedure TControllerProfissional.Registry;
 begin
-   oJson := TJSONObject.Create;
-  if Req.Params.Count = 0 then
-    begin
-        oJson.AddPair('error', 'id customer not found');
-      Res.Send<TJSONObject>(oJson).Status(500);
-      Exit;
-    end
-  else
-    id := Req.Params.Items['id'].ToInteger();
-
-  var IPessoa := TIPessoa.New;
-  var Pessoa: Tpessoas;
-
-  Pessoa := IPessoa.Build.ListById('id_pessoa', id, Pessoa).This;
-
-  if Pessoa = nil then
-    begin
-      oJson.AddPair('error', 'customer not found');
-      Res.Send<TJSONObject>(oJson).Status(404);
-      Exit;
-    end
-    else
-      if Pessoa.dt_del.HasValue then
-        begin
-          oJson := TJSONObject.Create;
-          oJson.AddPair('message', 'deleted record');
-          Res.Send<TJSONObject>(oJson).Status(404);
-          Exit;
-        end;
-
-  IPessoa.Build.Modify(Pessoa);
-  Pessoa.dt_del := now();
-  IPessoa.Build.Update;
-
-  oJson.AddPair('message', 'successfully customer deleted');
-  Res.Send<TJSONObject>(oJson).Status(404);
+  THorse.Get('api/v1/profissionais', GetAll)
+        .Get('api/v1/profissionais/:id', GetOne)
+        .Post('api/v1/profissionais', Post)
+        .Put('api/v1/profissionais/:id', Put)
+        .Delete('api/v1/profissionais/:id/delete', Delete);
 end;
 
 end.
