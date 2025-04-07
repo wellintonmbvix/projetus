@@ -61,7 +61,8 @@ uses
   controller.profissionais_pacotes_creditos in 'src\controller\controller.profissionais_pacotes_creditos.pas',
   controller.dto.profissionais_servicos.interfaces in 'src\controller\dto\controller.dto.profissionais_servicos.interfaces.pas',
   controller.dto.profissionais_servicos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.profissionais_servicos.interfaces.impl.pas',
-  controller.profissionais_servicos in 'src\controller\controller.profissionais_servicos.pas';
+  controller.profissionais_servicos in 'src\controller\controller.profissionais_servicos.pas',
+  controller.nummus in 'src\controller\controller.nummus.pas';
 
 begin
 {$IFDEF MSWINDOWS}
@@ -89,6 +90,7 @@ begin
   TControllerProfissional.Registry;
   TControllerProfissionalPacoteCredito.Registry;
   TControllerProfissionaisServicos.Registry;
+  TControllerNummus.Registry;
 
   // Gerando documentação SWAGGER
   Swagger

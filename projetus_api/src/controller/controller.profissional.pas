@@ -298,14 +298,41 @@ begin
         oJson.AddPair('nome', Pessoa.nome);
 
             var endereco := TJSONObject.Create;
-            endereco.AddPair('id', Pessoa.endereco.id_endereco.ToString());
-            endereco.AddPair('cep', Pessoa.endereco.cep);
-            endereco.AddPair('logradouro', Pessoa.endereco.logradouro);
-            endereco.AddPair('numero', Pessoa.endereco.numero);
-            endereco.AddPair('complemento', Pessoa.endereco.complemento);
-            endereco.AddPair('bairro', Pessoa.endereco.bairro);
-            endereco.AddPair('municipio', Pessoa.endereco.municipio);
-            endereco.AddPair('estado', Pessoa.endereco.estado);
+
+            if Pessoa.endereco.cep.HasValue then
+              endereco.AddPair('cep', Pessoa.endereco.cep)
+            else
+              endereco.AddPair('cep', TJSONNull.Create);
+
+            if Pessoa.endereco.logradouro.HasValue then
+              endereco.AddPair('logradouro', Pessoa.endereco.logradouro)
+            else
+              endereco.AddPair('logradouro', TJSONNull.Create);
+
+            if Pessoa.endereco.numero.HasValue then
+              endereco.AddPair('numero', Pessoa.endereco.numero)
+            else
+              endereco.AddPair('numero', TJSONNull.Create);
+
+            if Pessoa.endereco.complemento.HasValue then
+              endereco.AddPair('complemento', Pessoa.endereco.complemento)
+            else
+              endereco.AddPair('complemento', TJSONNull.Create);
+
+            if Pessoa.endereco.bairro.HasValue then
+              endereco.AddPair('bairro', Pessoa.endereco.bairro)
+            else
+              endereco.AddPair('bairro', TJSONNull.Create);
+
+            if Pessoa.endereco.municipio.HasValue then
+              endereco.AddPair('municipio', Pessoa.endereco.municipio)
+            else
+              endereco.AddPair('municipio', TJSONNull.Create);
+
+            if Pessoa.endereco.estado.HasValue then
+              endereco.AddPair('estado', Pessoa.endereco.estado)
+            else
+              endereco.AddPair('estado', TJSONNull.Create);
 
             var dados_pessoais := TJSONObject.Create;
             dados_pessoais.AddPair('id', Pessoa.dados_pessoais.id_dado_pessoal.ToString());
