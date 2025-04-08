@@ -99,7 +99,7 @@ begin
     page := Req.Query['page'];
     perPage := Req.Query['perPage'];
 
-    filter := 'historico_creditos.dt_del is null';
+    filter := 'historico_creditos.dt_del is null AND tipo_pessoa="P"';
     if nome <> EmptyStr then
       filter := filter + ' AND pessoa LIKE '+QuotedStr('%'+nome+'%');
 
@@ -130,8 +130,8 @@ begin
           TJSONNumber.Create(HistoricoCreditos.id_pessoa));
         oJson.AddPair('pessoa',
           TJSONString.Create(HistoricoCreditos.pessoa.Value));
-        oJson.AddPair('tipo_pessoa',
-          TJSONString.Create(HistoricoCreditos.tipo_pessoa.Value));
+//        oJson.AddPair('tipo_pessoa',
+//          TJSONString.Create(HistoricoCreditos.tipo_pessoa.Value));
         oJson.AddPair('credito',
           TJSONNumber.Create(HistoricoCreditos.credito));
         if HistoricoCreditos.status = 'U' then
@@ -210,8 +210,8 @@ begin
             TJSONNumber.Create(HistoricoCreditos.id_pessoa));
           oJson.AddPair('pessoa',
             TJSONString.Create(HistoricoCreditos.pessoa.Value));
-          oJson.AddPair('tipo_pessoa',
-            TJSONString.Create(HistoricoCreditos.tipo_pessoa.Value));
+//          oJson.AddPair('tipo_pessoa',
+//            TJSONString.Create(HistoricoCreditos.tipo_pessoa.Value));
           oJson.AddPair('credito',
             TJSONNumber.Create(HistoricoCreditos.credito));
           if HistoricoCreditos.status = 'U' then
