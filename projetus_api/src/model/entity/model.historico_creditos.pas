@@ -37,6 +37,8 @@ type
     Fdt_inc: TDateTime;
     Fdt_alt: Nullable<TDateTime>;
     Fdt_del: Nullable<TDateTime>;
+    Fpessoa: nullable<String>;
+    Ftipo_pessoa: nullable<String>;
   public 
     { Public declarations } 
     constructor Create;
@@ -50,6 +52,20 @@ type
     [ForeignKey('fk_historico_creditos_pessoas', 'id_pessoa', 'pessoas', 'id_pessoa', Cascade, Cascade)]
     [Dictionary('id_pessoa', 'Mensagem de validação', '', '', '', taCenter)]
     property id_pessoa: Integer read Fid_pessoa write Fid_pessoa;
+
+    [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
+    [Column('pessoa', ftString, 60)]
+    [JoinColumn('id_pessoa', 'pessoas', 'id_pessoa', 'nome',
+      TJoin.InnerJoin, 'pessoa')]
+    [Dictionary('pessoa', '')]
+    property pessoa: nullable<String> read Fpessoa write Fpessoa;
+
+    [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
+    [Column('tipo_pessoa', ftString, 1)]
+    [JoinColumn('id_pessoa', 'pessoas', 'id_pessoa', 'tipo',
+      TJoin.InnerJoin, 'tipo_pessoa')]
+    [Dictionary('tipo_pessoa', '')]
+    property tipo_pessoa: nullable<String> read Ftipo_pessoa write Ftipo_pessoa;
 
     [Column('credito', ftBCD)]
     [Dictionary('credito', 'Mensagem de validação', '0', '', '', taRightJustify)]
