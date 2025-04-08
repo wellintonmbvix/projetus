@@ -33,12 +33,14 @@ type
     Fid_orcamento: Integer;
     Fid_pessoa: Integer;
     Fid_servico: Integer;
-    Finfo_adicionais: nullable<TBlob>;
+    Finfo_adicionais: nullable<String>;
     Furgente: Boolean;
     Fprevisao_inicio: Nullable<TDateTime>;
     Fdt_inc: TDateTime;
     Fdt_alt: Nullable<TDateTime>;
     Fdt_del: Nullable<TDateTime>;
+    Fcliente: nullable<String>;
+    Fservico: nullable<String>;
   public
     { Public declarations }
     constructor Create;
@@ -53,14 +55,28 @@ type
     [Dictionary('id_pessoa', 'Mensagem de validação', '', '', '', taCenter)]
     property id_pessoa: Integer read Fid_pessoa write Fid_pessoa;
 
+    [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
+    [Column('cliente', ftString, 60)]
+    [JoinColumn('id_pessoa', 'pessoas', 'id_pessoa', 'nome',
+      TJoin.InnerJoin, 'cliente')]
+    [Dictionary('cliente', '')]
+    property cliente: nullable<String> read Fcliente write Fcliente;
+
     [Column('id_servico', ftInteger)]
     [ForeignKey('fk_orcamentos_servicos', 'id_servico', 'servicos', 'id_servico', SetNull, SetNull)]
     [Dictionary('id_servico', 'Mensagem de validação', '', '', '', taCenter)]
     property id_servico: Integer read Fid_servico write Fid_servico;
 
-    [Column('info_adicionais', ftBlob)]
+    [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
+    [Column('servico', ftString, 60)]
+    [JoinColumn('id_servico', 'servicos', 'id_servico', 'nome',
+      TJoin.InnerJoin, 'servico')]
+    [Dictionary('servico', '')]
+    property servico: nullable<String> read Fservico write Fservico;
+
+    [Column('info_adicionais', ftMemo)]
     [Dictionary('info_adicionais', 'Mensagem de validação', '', '', '', taLeftJustify)]
-    property info_adicionais: nullable<TBlob> read Finfo_adicionais write Finfo_adicionais;
+    property info_adicionais: nullable<String> read Finfo_adicionais write Finfo_adicionais;
 
     [Column('urgente', ftBoolean)]
     [Dictionary('urgente', 'Mensagem de validação', 'false', '', '', taLeftJustify)]

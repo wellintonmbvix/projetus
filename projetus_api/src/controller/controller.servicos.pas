@@ -68,7 +68,7 @@ begin
       if Servico.dt_del.HasValue then
         begin
           oJson := TJSONObject.Create;
-          oJson.AddPair('message', 'deleted record');
+          oJson.AddPair('message', 'record has already been deleted');
           Res.Send<TJSONObject>(oJson).Status(404);
           Exit;
         end;
@@ -78,7 +78,7 @@ begin
   IServico.Build.Update;
 
   oJson.AddPair('message', 'successfully service deleted');
-  Res.Send<TJSONObject>(oJson).Status(404);
+  Res.Send<TJSONObject>(oJson).Status(200);
 end;
 
 class procedure TControllerServicos.GetAll(Req: THorseRequest;
@@ -170,7 +170,7 @@ begin
   var
   Servico: Tservicos;
 
-  IServicos.Build.ListById('id_servicos', id, Servico);
+  IServicos.Build.ListById('id_servico', id, Servico);
   if Servico = nil then
     begin
       var oJson := TJSONObject.Create;

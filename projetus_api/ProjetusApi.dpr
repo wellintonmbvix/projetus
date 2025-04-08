@@ -65,7 +65,10 @@ uses
   controller.nummus in 'src\controller\controller.nummus.pas',
   controller.dto.historico_creditos.interfaces in 'src\controller\dto\controller.dto.historico_creditos.interfaces.pas',
   controller.dto.historico_creditos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.historico_creditos.interfaces.impl.pas',
-  controller.historico_creditos in 'src\controller\controller.historico_creditos.pas';
+  controller.historico_creditos in 'src\controller\controller.historico_creditos.pas',
+  controller.dto.orcamentos.interfaces in 'src\controller\dto\controller.dto.orcamentos.interfaces.pas',
+  controller.dto.orcamentos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.orcamentos.interfaces.impl.pas',
+  controller.orcamentos in 'src\controller\controller.orcamentos.pas';
 
 begin
 {$IFDEF MSWINDOWS}
@@ -94,6 +97,7 @@ begin
   TControllerProfissionalPacoteCredito.Registry;
   TControllerProfissionaisServicos.Registry;
   TControllerHistoricoCreditos.Registry;
+  TControllerOrcamentos.Registry;
   TControllerNummus.Registry;
 
   // Gerando documentação SWAGGER
