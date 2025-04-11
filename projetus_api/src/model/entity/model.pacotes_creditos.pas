@@ -6,7 +6,9 @@ uses
   DB, 
   Classes, 
   SysUtils, 
-  Generics.Collections, 
+  Generics.Collections,
+
+  GBSwagger.Model.Attributes,
 
   // ormbr
   ormbr.types.blob,
@@ -39,38 +41,53 @@ type
     Fdt_alt: nullable<TDateTime>;
     Fdt_del: nullable<TDateTime>;
   public 
-    { Public declarations } 
+    { Public declarations }
+    [SwagProp('id_pacote_credito', '', False, True)]
     [Column('id_pacote_credito', ftInteger)]
     [Dictionary('id_pacote_credito', 'Mensagem de validação', '', '', '', taCenter)]
     property id_pacote_credito: Integer read Fid_pacote_credito write Fid_pacote_credito;
 
+    [SwagRequired]
+    [SwagString(60)]
     [Column('nome', ftString, 60)]
     [Dictionary('nome', 'Mensagem de validação', '', '', '', taLeftJustify)]
     property nome: String read Fnome write Fnome;
 
+    [SwagRequired]
+    [SwagNumber]
     [Column('creditos', ftInteger)]
     [Dictionary('creditos', 'Mensagem de validação', '', '', '', taCenter)]
     property creditos: Integer read Fcreditos write Fcreditos;
 
+    [SwagRequired]
+    [SwagNumber]
     [Column('valor_compra', ftBCD)]
     [Dictionary('valor_compra', 'Mensagem de validação', '0', '', '', taRightJustify)]
     property valor_compra: Double read Fvalor_compra write Fvalor_compra;
 
+    [SwagRequired]
+    [SwagNumber]
     [Column('dias_expiracao', ftInteger)]
     [Dictionary('dias_expiracao', 'Mensagem de validação', '', '', '', taCenter)]
     property dias_expiracao: Integer read Fdias_expiracao write Fdias_expiracao;
 
+    [SwagProp('dt_inc', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('dt_inc', ftDateTime)]
     [Dictionary('dt_inc', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_inc: TDateTime read Fdt_inc write Fdt_inc;
 
+    [SwagProp('dt_alt', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_alt', ftDateTime)]
     [Dictionary('dt_alt', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_alt: nullable<TDateTime> read Fdt_alt write Fdt_alt;
 
+    [SwagProp('dt_del', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_del', ftDateTime)]
     [Dictionary('dt_del', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]

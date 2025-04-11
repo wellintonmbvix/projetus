@@ -6,7 +6,9 @@ uses
   DB, 
   Classes, 
   SysUtils, 
-  Generics.Collections, 
+  Generics.Collections,
+
+  GBSwagger.Model.Attributes,
 
   // ormbr
   ormbr.types.blob,
@@ -41,10 +43,12 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    [SwagIgnore]
     [Column('id_contato_email', ftInteger)]
     [Dictionary('id_contato_email', 'Mensagem de validação', '', '', '', taCenter)]
     property id_contato_email: nullable<Integer> read Fid_contato_email write Fid_contato_email;
 
+    [SwagIgnore]
     [Restrictions([TRestriction.NotNull])]
     [Column('id_contato', ftInteger)]
     [ForeignKey('fk_contatos_emails_contatos', 'id_contato', 'contatos', 'id_contato', Cascade, Cascade)]
@@ -55,17 +59,20 @@ type
     [Dictionary('Emails', 'Mensagem de validação', '', '', '', taLeftJustify)]
     property emails: String read Femails write Femails;
 
+    [SwagIgnore]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('dt_inc', ftDateTime)]
     [Dictionary('Data Inclusão', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_inc: TDateTime read Fdt_inc write Fdt_inc;
 
+    [SwagIgnore]
     [Column('dt_alt', ftDateTime)]
     [Dictionary('Data Alteração', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_alt: nullable<TDateTime> read Fdt_alt write Fdt_alt;
 
+    [SwagIgnore]
     [Column('dt_del', ftDateTime)]
     [Dictionary('Data Deleção', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]

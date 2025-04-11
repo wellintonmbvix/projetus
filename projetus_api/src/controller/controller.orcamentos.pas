@@ -14,19 +14,55 @@ uses
   Data.DB,
   DBClient,
 
+  Horse.GBSwagger.Register,
+  Horse.GBSwagger.Controller,
+  GBSwagger.Path.Attributes,
+
   uRotinas,
 
   model.orcamentos,
+  model.api.sucess,
+  model.api.error,
   controller.dto.orcamentos.interfaces,
   controller.dto.orcamentos.interfaces.impl;
 
 type
-  TControllerOrcamentos = class
+  [SwagPath('v1', 'Orçamentos')]
+  TControllerOrcamentos = class(THorseGBSwagger)
+    private
+    public
     class procedure Registry;
+
+    [SwagGet('prcamentos', 'Retorna listagem de orçamentos')]
+    [SwagResponse(200, Torcamentos, 'Retorno com sucesso', True)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamQuery('Cliente', 'Nome do cliente que solitar o orçamento', False, False)]
+    [SwagParamQuery('Serviço', 'Nome do serviço que deseja orçamento', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagGet('orcamentos/:id', 'Retorna dados de um orçamento')]
+    [SwagResponse(200, Torcamentos, 'Retorno com sucesso', False)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPost('orcamentos', 'Regista um novo orçamento')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPut('orcamentos/:id', 'Atualiza dados de um orçamento')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagDelete('orcamentos/:id/delete', 'Apaga registro de um orçamento')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
@@ -326,5 +362,9 @@ begin
         .Put('api/v1/orcamentos/:id', Put)
         .Delete('api/v1/orcamentos/:id/delete', Delete);
 end;
+
+initialization
+
+THorseGBSwaggerRegister.RegisterPath(TControllerOrcamentos)
 
 end.

@@ -6,7 +6,9 @@ uses
   DB, 
   Classes, 
   SysUtils, 
-  Generics.Collections, 
+  Generics.Collections,
+
+  GBSwagger.Model.Attributes,
 
   // ormbr
   ormbr.types.blob,
@@ -53,6 +55,7 @@ type
     [Dictionary('id_pessoa', 'Mensagem de validação', '', '', '', taCenter)]
     property id_pessoa: Integer read Fid_pessoa write Fid_pessoa;
 
+    [SwagProp('pessoa', '', False, True)]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('pessoa', ftString, 60)]
     [JoinColumn('id_pessoa', 'pessoas', 'id_pessoa', 'nome',
@@ -60,6 +63,7 @@ type
     [Dictionary('pessoa', '')]
     property pessoa: nullable<String> read Fpessoa write Fpessoa;
 
+    [SwagProp('pessoa', '', False, True)]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('tipo_pessoa', ftString, 1)]
     [JoinColumn('id_pessoa', 'pessoas', 'id_pessoa', 'tipo',
@@ -67,25 +71,31 @@ type
     [Dictionary('tipo_pessoa', '')]
     property tipo_pessoa: nullable<String> read Ftipo_pessoa write Ftipo_pessoa;
 
+    [SwagNumber]
     [Column('credito', ftBCD)]
     [Dictionary('credito', 'Mensagem de validação', '0', '', '', taRightJustify)]
     property credito: Double read Fcredito write Fcredito;
 
+    [SwagString(1)]
     [Column('status', ftString, 1)]
     [Dictionary('status', 'Mensagem de validação', 'U', '', '', taLeftJustify)]
     property status: String read Fstatus write Fstatus;
 
+    [SwagProp('dt_inc', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('dt_inc', ftDateTime)]
     [Dictionary('dt_inc', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_inc: TDateTime read Fdt_inc write Fdt_inc;
 
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_alt', ftDateTime)]
     [Dictionary('dt_alt', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_alt: nullable<TDateTime> read Fdt_alt write Fdt_alt;
 
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_del', ftDateTime)]
     [Dictionary('dt_del', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]

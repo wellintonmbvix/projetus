@@ -14,19 +14,52 @@ uses
   Data.DB,
   DBClient,
 
+  Horse.GBSwagger.Register,
+  Horse.GBSwagger.Controller,
+  GBSwagger.Path.Attributes,
+
   uRotinas,
 
   model.servicos,
+  model.api.sucess,
+  model.api.error,
   controller.dto.servicos.interfaces,
   controller.dto.servicos.interfaces.impl;
 
 type
-  TControllerServicos = class
+  [SwagPath('v1', 'Serviços')]
+  TControllerServicos = class(THorseGBSwagger)
     class procedure Registry;
+
+    [SwagGet('servicos', 'Retorna listagem de serviços')]
+    [SwagResponse(200, Tservicos, 'Retorno com sucesso', True)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamQuery('nome', 'Nome do serviço', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagGet('servicos/:id', 'Retorna dados de um serviço')]
+    [SwagResponse(200, Tservicos, 'Retorno com sucesso', False)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPost('servicos', 'Regista um novo serviço')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPut('servicos/:id', 'Atualiza dados de um serviço')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagDelete('servicos/:id/delete', 'Apaga registro de um serviço')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
@@ -301,5 +334,9 @@ begin
         .Put('api/v1/servicos/:id', Put)
         .Delete('api/v1/servicos/:id/delete', Delete);
 end;
+
+initialization
+
+THorseGBSwaggerRegister.RegisterPath(TControllerServicos)
 
 end.

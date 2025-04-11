@@ -14,6 +14,10 @@ uses
   Data.DB,
   DBClient,
 
+  Horse.GBSwagger.Register,
+  Horse.GBSwagger.Controller,
+  GBSwagger.Path.Attributes,
+
   uRotinas,
 
   model.contatos_emails,
@@ -22,6 +26,8 @@ uses
   model.dados_pessoais,
   model.endereco,
   model.pessoa,
+  model.api.sucess,
+  model.api.error,
   controller.dto.pessoa.interfaces,
   controller.dto.pessoa.interfaces.impl,
   controller.dto.contatos.interfaces,
@@ -32,13 +38,45 @@ uses
   controller.dto.contatos_emails.interfaces.impl;
 
 type
-  TControllerCliente = class
+  [SwagPath('v1', 'Clientes')]
+  TControllerCliente = class(THorseGBSwagger)
+  private
+  public
     class procedure Registry;
+
+    [SwagGet('clientes', 'Retorna listagem de clientes')]
+    [SwagResponse(200, Tpessoas, 'Retorno com sucesso', True)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamQuery('nome', 'Nome do cliente', False, False)]
+    [SwagParamQuery('email', 'Email do cliente', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagGet('clientes/:id', 'Retorna dados de um cliente')]
+    [SwagResponse(200, Tpessoas, 'Retorno com sucesso', False)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPost('clientes', 'Regista um novo cliente')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamBody('clientes', Tpessoas)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
     class procedure PostList(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPut('clientes/:id', 'Atualiza dados de um cliente')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagDelete('clientes/:id/delete', 'Apaga registro e histórico de um cliente')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
@@ -624,5 +662,9 @@ begin
   oJson.AddPair('message', 'successfully customer deleted');
   Res.Send<TJSONObject>(oJson).Status(404);
 end;
+
+initialization
+
+THorseGBSwaggerRegister.RegisterPath(TControllerCliente)
 
 end.

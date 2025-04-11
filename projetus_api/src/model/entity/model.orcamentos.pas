@@ -6,7 +6,9 @@ uses
   DB, 
   Classes, 
   SysUtils, 
-  Generics.Collections, 
+  Generics.Collections,
+
+  GBSwagger.Model.Attributes,
 
   // ormbr
   ormbr.types.blob,
@@ -46,15 +48,18 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    [SwagProp('id_orcamento', '', False, True)]
     [Column('id_orcamento', ftInteger)]
     [Dictionary('id_orcamento', 'Mensagem de validação', '', '', '', taCenter)]
     property id_orcamento: Integer read Fid_orcamento write Fid_orcamento;
 
+    [SwagRequired]
     [Column('id_pessoa', ftInteger)]
     [ForeignKey('fk_orcamentos_pessoas', 'id_pessoa', 'pessoas', 'id_pessoa', Cascade, Cascade)]
     [Dictionary('id_pessoa', 'Mensagem de validação', '', '', '', taCenter)]
     property id_pessoa: Integer read Fid_pessoa write Fid_pessoa;
 
+    [SwagProp('cliente', '', False, True)]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('cliente', ftString, 60)]
     [JoinColumn('id_pessoa', 'pessoas', 'id_pessoa', 'nome',
@@ -62,11 +67,13 @@ type
     [Dictionary('cliente', '')]
     property cliente: nullable<String> read Fcliente write Fcliente;
 
+    [SwagRequired]
     [Column('id_servico', ftInteger)]
     [ForeignKey('fk_orcamentos_servicos', 'id_servico', 'servicos', 'id_servico', SetNull, SetNull)]
     [Dictionary('id_servico', 'Mensagem de validação', '', '', '', taCenter)]
     property id_servico: Integer read Fid_servico write Fid_servico;
 
+    [SwagProp('servico', '', False, True)]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('servico', ftString, 60)]
     [JoinColumn('id_servico', 'servicos', 'id_servico', 'nome',
@@ -74,29 +81,38 @@ type
     [Dictionary('servico', '')]
     property servico: nullable<String> read Fservico write Fservico;
 
+    [SwagString(3000)]
     [Column('info_adicionais', ftMemo)]
     [Dictionary('info_adicionais', 'Mensagem de validação', '', '', '', taLeftJustify)]
     property info_adicionais: nullable<String> read Finfo_adicionais write Finfo_adicionais;
 
+    [SwagPositive]
     [Column('urgente', ftBoolean)]
     [Dictionary('urgente', 'Mensagem de validação', 'false', '', '', taLeftJustify)]
     property urgente: Boolean read Furgente write Furgente;
 
+    [SwagDate('dd/mm/YYYY')]
     [Column('previsao_inicio', ftDateTime)]
     [Dictionary('previsao_inicio', 'Mensagem de validação', '', '', '', taCenter)]
     property previsao_inicio: Nullable<TDateTime> read Fprevisao_inicio write Fprevisao_inicio;
 
+    [SwagProp('dt_inc', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('dt_inc', ftDateTime)]
     [Dictionary('dt_inc', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_inc: TDateTime read Fdt_inc write Fdt_inc;
 
+    [SwagProp('dt_alt', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_alt', ftDateTime)]
     [Dictionary('dt_alt', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_alt: nullable<TDateTime> read Fdt_alt write Fdt_alt;
 
+    [SwagProp('dt_del', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_del', ftDateTime)]
     [Dictionary('dt_del', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]

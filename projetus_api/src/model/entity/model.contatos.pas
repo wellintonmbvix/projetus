@@ -8,6 +8,8 @@ uses
   SysUtils, 
   Generics.Collections,
 
+  GBSwagger.Model.Attributes,
+
   model.contatos_emails,
   model.contatos_telefones,
 
@@ -46,30 +48,37 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    [SwagIgnore]
     [Column('id_contato', ftInteger)]
     [Dictionary('id_contato', 'Mensagem de validação', '', '', '', taCenter)]
     property id_contato: Integer read Fid_contato write Fid_contato;
 
+    [SwagIgnore]
     [Column('id_pessoa', ftInteger)]
     [ForeignKey('fk_contatos_pessoas', 'id_pessoa', 'pessoas', 'id_pessoa', Cascade, Cascade)]
     [Dictionary('id_pessoa', 'Mensagem de validação', '', '', '', taCenter)]
     property id_pessoa: Integer read Fid_pessoa write Fid_pessoa;
 
+    [SwagString(60, 1)]
+    [SwagRequired]
     [Column('nome', ftString, 60)]
     [Dictionary('nome', 'Mensagem de validação', '', '', '', taLeftJustify)]
     property nome: String read Fnome write Fnome;
 
+    [SwagIgnore]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('dt_inc', ftDateTime)]
     [Dictionary('dt_inc', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_inc: TDateTime read Fdt_inc write Fdt_inc;
 
+    [SwagIgnore]
     [Column('dt_alt', ftDateTime)]
     [Dictionary('dt_alt', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_alt: nullable<TDateTime> read Fdt_alt write Fdt_alt;
 
+    [SwagIgnore]
     [Column('dt_del', ftDateTime)]
     [Dictionary('dt_del', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]

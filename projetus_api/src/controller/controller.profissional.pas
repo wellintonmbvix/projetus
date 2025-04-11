@@ -14,6 +14,10 @@ uses
   Data.DB,
   DBClient,
 
+  Horse.GBSwagger.Register,
+  Horse.GBSwagger.Controller,
+  GBSwagger.Path.Attributes,
+
   uRotinas,
 
   model.contatos_emails,
@@ -22,6 +26,8 @@ uses
   model.dados_pessoais,
   model.endereco,
   model.pessoa,
+  model.api.sucess,
+  model.api.error,
   controller.dto.pessoa.interfaces,
   controller.dto.pessoa.interfaces.impl,
   controller.dto.contatos.interfaces,
@@ -32,12 +38,43 @@ uses
   controller.dto.contatos_emails.interfaces.impl;
 
 type
-  TControllerProfissional = class
+  [SwagPath('v1', 'Profissionais')]
+  TControllerProfissional = class(THorseGBSwagger)
+    private
+    public
     class procedure Registry;
+
+    [SwagGet('profissionais', 'Retorna listagem de profissionais')]
+    [SwagResponse(200, Tpessoas, 'Retorno com sucesso', True)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamQuery('nome', 'Nome do profissional', False, False)]
+    [SwagParamQuery('email', 'Email do profissional', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagGet('profissionais/:id', 'Retorna dados de um profissional')]
+    [SwagResponse(200, Tpessoas, 'Retorno com sucesso', False)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPost('profissionais', 'Regista um novo profissional')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamBody('profissionais', Tpessoas)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPut('profissionais/:id', 'Atualiza dados de um profissional')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagDelete('profissionais/:id/delete', 'Apaga registro e os créditos de um profissional')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
@@ -661,5 +698,9 @@ begin
         .Put('api/v1/profissionais/:id', Put)
         .Delete('api/v1/profissionais/:id/delete', Delete);
 end;
+
+initialization
+
+THorseGBSwaggerRegister.RegisterPath(TControllerProfissional)
 
 end.

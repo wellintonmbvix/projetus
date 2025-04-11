@@ -71,7 +71,8 @@ uses
   controller.orcamentos in 'src\controller\controller.orcamentos.pas',
   controller.dto.historico_orcamentos.interfaces in 'src\controller\dto\controller.dto.historico_orcamentos.interfaces.pas',
   controller.dto.historico_orcamentos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.historico_orcamentos.interfaces.impl.pas',
-  controller.historico_orcamentos in 'src\controller\controller.historico_orcamentos.pas';
+  controller.historico_orcamentos in 'src\controller\controller.historico_orcamentos.pas',
+  api.swagger.doc in 'src\view\api.swagger.doc.pas';
 
 begin
 {$IFDEF MSWINDOWS}
@@ -88,7 +89,7 @@ begin
 
   // Middlewares
   THorse
-        .Use(HorseSwagger)
+        .Use(HorseSwagger(Format('%s/swagger/doc/html', ['v1']),Format('%s/swagger/doc/json', ['v1'])))
         .Use(CORS)
         .Use(Jhonson('UTF-8'));
 
@@ -104,156 +105,157 @@ begin
   TControllerHistoricoOrcamentos.Registry;
   TControllerNummus.Registry;
 
-  // Gerando documentação SWAGGER
-  Swagger
-    .Host('localhost:3000')
-    .BasePath('api/v1')
-{$REGION 'Módulo de Cliente'}
-    .Path('clientes')
-      .Tag('Cliente API')
-      .Get('Lista clientes', 'Lista todos clientes')
-        .AddParamQuery('nome', 'Parte ou nome completo de um cliente')
-        .&End
-        .AddParamQuery('email', 'Email do cliente desejado')
-        .&End
-        .AddParamQuery('page', 'Número da página atual')
-        .&End
-        .AddParamQuery('perPage', 'Registro por página')
-        .&End
-        .AddResponse(200, 'operação bem sucedida')
-          .Schema(Tpessoas)
-          .IsArray(True)
-        .&End
-        .AddResponse(400, 'bad request')
-          .Schema(TAPIError)
-        .&End
-        .AddResponse(500, '')
-          .Schema(TAPIError)
-        .&End
-      .&End
-      .Post('Novo cliente', 'Adiciona um novo cliente')
-          .AddParamBody('Cliente data', 'Cliente data')
-            .Required(True)
-            .Schema(Tpessoas)
-          .&End
-          .AddResponse(201, 'cliente criado com sucesso!')
-            .Schema(TAPISuccess)
-          .&End
-          .AddResponse(400, 'bad request')
-            .Schema(TAPIError)
-          .&End
-          .AddResponse(500, 'internal server error')
-            .Schema(TAPIError)
-          .&End
-       .&End
-      .&End
-    .&End
-    .Path('clientes/:id')
-      .Tag('Cliente API')
-      .Put('Atualiza cliente', 'Atualiza dados do cliente')
-          .AddParamBody('Cliente data', 'Cliente data')
-            .Required(True)
-            .Schema(Tpessoas)
-          .&End
-          .AddResponse(201, 'cliente criado com sucesso!')
-            .Schema(TAPISuccess)
-          .&End
-          .AddResponse(400, 'bad request')
-            .Schema(TAPIError)
-          .&End
-          .AddResponse(500, 'internal server error')
-            .Schema(TAPIError)
-          .&End
-      .&End
-    .&End
-    .Path('clientes/:id')
-      .Tag('Cliente API')
-      .Get('Lista cliente', 'Lista os dados de cliente específico')
-        .AddParamQuery('id', 'Código do cliente desejado').&End
-        .AddResponse(201, 'cliente retornado com sucesso!').Schema(Tpessoas).&End
-      .&End
-    .&End
-    .Path('clientes/:id/delete')
-      .Tag('Cliente API')
-      .Delete('Deleta cliente', 'Deleta cliente e seu histórico')
-        .AddParamQuery('id', 'Código do cliente desejado').&End
-        .AddResponse(201, 'cliente deletado com sucesso!').Schema(TAPISuccess).&End
-      .&End
-    .&End
-{$ENDREGION}
+//  Gerando documentação SWAGGER
+//  Swagger
+//    .Host('localhost:3000')
+//    .BasePath('api/v1')
+//
+//{$REGION 'Módulo de Cliente'}
+//    .Path('clientes')
+//      .Tag('Cliente API')
+//      .Get('Lista clientes', 'Lista todos clientes')
+//        .AddParamQuery('nome', 'Parte ou nome completo de um cliente')
+//        .&End
+//        .AddParamQuery('email', 'Email do cliente desejado')
+//        .&End
+//        .AddParamQuery('page', 'Número da página atual')
+//        .&End
+//        .AddParamQuery('perPage', 'Registro por página')
+//        .&End
+//        .AddResponse(200, 'operação bem sucedida')
+//          .Schema(Tpessoas)
+//          .IsArray(True)
+//        .&End
+//        .AddResponse(400, 'bad request')
+//          .Schema(TAPIError)
+//        .&End
+//        .AddResponse(500, '')
+//          .Schema(TAPIError)
+//        .&End
+//      .&End
+//      .Post('Novo cliente', 'Adiciona um novo cliente')
+//          .AddParamBody('Cliente data', 'Cliente data')
+//            .Required(True)
+//            .Schema(Tpessoas)
+//          .&End
+//          .AddResponse(201, 'cliente criado com sucesso!')
+//            .Schema(TAPISuccess)
+//          .&End
+//          .AddResponse(400, 'bad request')
+//            .Schema(TAPIError)
+//          .&End
+//          .AddResponse(500, 'internal server error')
+//            .Schema(TAPIError)
+//          .&End
+//       .&End
+//      .&End
+//    .&End
+//    .Path('clientes/:id')
+//      .Tag('Cliente API')
+//      .Put('Atualiza cliente', 'Atualiza dados do cliente')
+//          .AddParamBody('Cliente data', 'Cliente data')
+//            .Required(True)
+//            .Schema(Tpessoas)
+//          .&End
+//          .AddResponse(201, 'cliente criado com sucesso!')
+//            .Schema(TAPISuccess)
+//          .&End
+//          .AddResponse(400, 'bad request')
+//            .Schema(TAPIError)
+//          .&End
+//          .AddResponse(500, 'internal server error')
+//            .Schema(TAPIError)
+//          .&End
+//      .&End
+//    .&End
+//    .Path('clientes/:id')
+//      .Tag('Cliente API')
+//      .Get('Lista cliente', 'Lista os dados de cliente específico')
+//        .AddParamQuery('id', 'Código do cliente desejado').&End
+//        .AddResponse(201, 'cliente retornado com sucesso!').Schema(Tpessoas).&End
+//      .&End
+//    .&End
+//    .Path('clientes/:id/delete')
+//      .Tag('Cliente API')
+//      .Delete('Deleta cliente', 'Deleta cliente e seu histórico')
+//        .AddParamQuery('id', 'Código do cliente desejado').&End
+//        .AddResponse(201, 'cliente deletado com sucesso!').Schema(TAPISuccess).&End
+//      .&End
+//    .&End
+//{$ENDREGION}
+//
+//{$REGION 'Módulo Pacotes de Créditos'}
+//    .Path('pacotes-creditos')
+//      .Tag('Pacotes Créditos API')
+//      .Get('Lista pacotes de crédtios', 'Lista todos pacotes de créditos')
+//        .AddParamQuery('nome', 'Parte ou nome completo do pacote')
+//        .&End
+//        .AddParamQuery('page', 'Número da página atual').&End
+//        .AddParamQuery('perPage', 'Registro por página').&End
+//        .AddResponse(200, 'operação bem sucedida')
+//          .Schema(Tpacotes_creditos)
+//          .IsArray(True)
+//        .&End
+//        .AddResponse(400, 'bad request')
+//          .Schema(TAPIError)
+//        .&End
+//        .AddResponse(500, '')
+//          .Schema(TAPIError)
+//        .&End
+//      .&End
+//      .Post('Novo Pacote', 'Adiciona um novo pacote')
+//          .AddParamBody('Pacote data', 'acote data')
+//            .Required(True)
+//            .Schema(Tpacotes_creditos)
+//          .&End
+//          .AddResponse(201, 'pacote criado com sucesso!')
+//            .Schema(TAPISuccess)
+//          .&End
+//          .AddResponse(400, 'bad request')
+//            .Schema(TAPIError)
+//          .&End
+//          .AddResponse(500, 'internal server error')
+//            .Schema(TAPIError)
+//          .&End
+//       .&End
+//      .&End
+//    .&End
+//    .Path('pacotes-creditos/:id')
+//      .Tag('Pacotes Créditos API')
+//      .Put('Atualiza pacotes', 'Atualiza dados do pacotes de créditos')
+//          .AddParamBody('Pacote data', 'Pacote data')
+//            .Required(True)
+//            .Schema(Tpacotes_creditos)
+//          .&End
+//          .AddResponse(201, 'pacote criado com sucesso!')
+//            .Schema(TAPISuccess)
+//          .&End
+//          .AddResponse(400, 'bad request')
+//            .Schema(TAPIError)
+//          .&End
+//          .AddResponse(500, 'internal server error')
+//            .Schema(TAPIError)
+//          .&End
+//      .&End
+//    .&End
+//    .Path('pacotes-creditos/:id')
+//      .Tag('Pacotes Créditos API')
+//      .Get('Lista pacote', 'Lista os dados de pacote de créditos')
+//        .AddParamQuery('id', 'Código do pacote desejado').&End
+//        .AddResponse(201, 'pacote retornado com sucesso!')
+//          .Schema(Tpacotes_creditos).&End
+//      .&End
+//    .&End
+//    .Path('pacotes-creditos/:id/delete')
+//      .Tag('Pacotes Créditos API')
+//      .Delete('Deleta pacotes créditos', 'Deleta pacote de crédito')
+//        .AddParamQuery('id', 'Código do pacote desejado').&End
+//        .AddResponse(201, 'pacote deletado com sucesso!').Schema(TAPISuccess).&End
+//      .&End
+//    .&End
+//{$ENDREGION}
 
-{$REGION 'Módulo Pacotes de Créditos'}
-    .Path('pacotes-creditos')
-      .Tag('Pacotes Créditos API')
-      .Get('Lista pacotes de crédtios', 'Lista todos pacotes de créditos')
-        .AddParamQuery('nome', 'Parte ou nome completo do pacote')
-        .&End
-        .AddParamQuery('page', 'Número da página atual').&End
-        .AddParamQuery('perPage', 'Registro por página').&End
-        .AddResponse(200, 'operação bem sucedida')
-          .Schema(Tpacotes_creditos)
-          .IsArray(True)
-        .&End
-        .AddResponse(400, 'bad request')
-          .Schema(TAPIError)
-        .&End
-        .AddResponse(500, '')
-          .Schema(TAPIError)
-        .&End
-      .&End
-      .Post('Novo Pacote', 'Adiciona um novo pacote')
-          .AddParamBody('Pacote data', 'acote data')
-            .Required(True)
-            .Schema(Tpacotes_creditos)
-          .&End
-          .AddResponse(201, 'pacote criado com sucesso!')
-            .Schema(TAPISuccess)
-          .&End
-          .AddResponse(400, 'bad request')
-            .Schema(TAPIError)
-          .&End
-          .AddResponse(500, 'internal server error')
-            .Schema(TAPIError)
-          .&End
-       .&End
-      .&End
-    .&End
-    .Path('pacotes-creditos/:id')
-      .Tag('Pacotes Créditos API')
-      .Put('Atualiza pacotes', 'Atualiza dados do pacotes de créditos')
-          .AddParamBody('Pacote data', 'Pacote data')
-            .Required(True)
-            .Schema(Tpacotes_creditos)
-          .&End
-          .AddResponse(201, 'pacote criado com sucesso!')
-            .Schema(TAPISuccess)
-          .&End
-          .AddResponse(400, 'bad request')
-            .Schema(TAPIError)
-          .&End
-          .AddResponse(500, 'internal server error')
-            .Schema(TAPIError)
-          .&End
-      .&End
-    .&End
-    .Path('pacotes-creditos/:id')
-      .Tag('Pacotes Créditos API')
-      .Get('Lista pacote', 'Lista os dados de pacote de créditos')
-        .AddParamQuery('id', 'Código do pacote desejado').&End
-        .AddResponse(201, 'pacote retornado com sucesso!')
-          .Schema(Tpacotes_creditos).&End
-      .&End
-    .&End
-    .Path('pacotes-creditos/:id/delete')
-      .Tag('Pacotes Créditos API')
-      .Delete('Deleta pacotes créditos', 'Deleta pacote de crédito')
-        .AddParamQuery('id', 'Código do pacote desejado').&End
-        .AddResponse(201, 'pacote deletado com sucesso!').Schema(TAPISuccess).&End
-      .&End
-    .&End
-{$ENDREGION}
-
-    .&End;
+//    .&End;
 
   THorse.Host := '127.0.0.1';
   THorse.Listen(3000,

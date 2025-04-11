@@ -176,6 +176,7 @@
         <DCCReference Include="src\controller\dto\controller.dto.historico_orcamentos.interfaces.pas"/>
         <DCCReference Include="src\controller\dto\implementation\controller.dto.historico_orcamentos.interfaces.impl.pas"/>
         <DCCReference Include="src\controller\controller.historico_orcamentos.pas"/>
+        <DCCReference Include="src\view\api.swagger.doc.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

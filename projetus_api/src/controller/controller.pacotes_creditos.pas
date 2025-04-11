@@ -14,20 +14,56 @@ uses
   Data.DB,
   DBClient,
 
+  Horse.GBSwagger.Register,
+  Horse.GBSwagger.Controller,
+  GBSwagger.Path.Attributes,
+
   uRotinas,
 
   controller.dto.pacotes_creditos.interfaces,
   controller.dto.pacotes_creditos.interfaces.impl,
 
-  model.pacotes_creditos;
+  model.pacotes_creditos,
+  model.api.sucess,
+  model.api.error;
 
 type
-  TControllerPacotesCreditos = class
+  [SwagPath('v1', 'Pacote de Créditos')]
+  TControllerPacotesCreditos = class(THorseGBSwagger)
+    private
+    public
     class procedure Registry;
+
+    [SwagGet('pacotes-creditos', 'Retorna listagem de pacotes de créditos')]
+    [SwagResponse(200, Tpacotes_creditos, 'Retorno com sucesso', True)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamQuery('nome', 'Nome do pacote de crédito', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagGet('pacotes-creditos/:id', 'Retorna dados de um pacote de crédito')]
+    [SwagResponse(200, Tpacotes_creditos, 'Retorno com sucesso', False)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPost('pacotes-creditos', 'Regista um novo pacote de créditos')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamBody('pacotes-creditos', Tpacotes_creditos)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPut('pacotes-creditos/:id', 'Atualiza dados de um pacote de créditos')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagDelete('pacotes-creditos/:id/delete', 'Apaga registro de um pacote de crédito')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
@@ -326,5 +362,9 @@ begin
         .Put('api/v1/pacotes-creditos/:id', Put)
         .Delete('api/v1/pacotes-creditos/:id/delete', Delete);
 end;
+
+initialization
+
+THorseGBSwaggerRegister.RegisterPath(TControllerPacotesCreditos)
 
 end.
