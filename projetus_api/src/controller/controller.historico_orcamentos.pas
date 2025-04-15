@@ -14,19 +14,59 @@ uses
   Data.DB,
   DBClient,
 
+  Horse.GBSwagger.Register,
+  Horse.GBSwagger.Controller,
+  GBSwagger.Path.Attributes,
+
   uRotinas,
 
   model.historico_orcamentos,
+  model.api.sucess,
+  model.api.error,
   controller.dto.historico_orcamentos.interfaces,
   controller.dto.historico_orcamentos.interfaces.impl;
 
 type
-  TControllerHistoricoOrcamentos = class
+  [SwagPath('v1', 'Histórico de Orçamentos')]
+  TControllerHistoricoOrcamentos = class(THorseGBSwagger)
     class procedure Registry;
+
+    [SwagGet('historico-orcamentos', 'Retorna listagem de histórico de orçamentos')]
+    [SwagResponse(200, Thistorico_orcamentos, 'Retorno com sucesso', True)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamQuery('nome', 'Nome do cliente', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagGet('historico-orcamentos/:id', 'Retorna dados um único histórico de orçamento')]
+    [SwagResponse(200, Thistorico_orcamentos, 'Retorno com sucesso', False)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Not found')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPost('historico-orcamentos', 'Regista um novo histórico')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamBody('body', Thistorico_orcamentos)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPut('historico-orcamentos/:id', 'Atualiza dados de um histórico')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Not found')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagDelete('historico-orcamentos/:id/delete', 'Apaga registro de um histórico')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Not found')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
@@ -68,7 +108,7 @@ begin
       if HistoricoOrcamentos.dt_del.HasValue then
         begin
           oJson := TJSONObject.Create;
-          oJson.AddPair('message', 'deleted record');
+          oJson.AddPair('error', 'deleted record');
           Res.Send<TJSONObject>(oJson).Status(404);
           Exit;
         end;
@@ -77,7 +117,7 @@ begin
   HistoricoOrcamentos.dt_del := now();
   IHistoricoOrcamentos.Build.Update;
 
-  oJson.AddPair('message', 'successfully budget history deleted');
+  oJson.AddPair('success', 'successfully budget history deleted');
   Res.Send<TJSONObject>(oJson).Status(200);
 end;
 
@@ -185,7 +225,7 @@ begin
   if HistoricoOrcamentos = nil then
     begin
       var oJson := TJSONObject.Create;
-        oJson.AddPair('message', 'budget not found');
+        oJson.AddPair('message', 'budget history not found');
       Res.Send<TJSONObject>(oJson).Status(404);
     end
   else
@@ -327,11 +367,18 @@ end;
 
 class procedure TControllerHistoricoOrcamentos.Registry;
 begin
-  THorse.Get('api/v1/historico-orcamentos', GetAll)
-        .Get('api/v1/historico-orcamentos/:id', GetOne)
-        .Post('api/v1/historico-orcamentos', Post)
-        .Put('api/v1/historico-orcamentos/:id', Put)
-        .Delete('api/v1/historico-orcamentos/:id/delete', Delete);
+  THorse
+    .Group
+      .Prefix('api/v1')
+        .Get('/historico-orcamentos', GetAll)
+        .Get('/historico-orcamentos/:id', GetOne)
+        .Post('/historico-orcamentos', Post)
+        .Put('/historico-orcamentos/:id', Put)
+        .Delete('/historico-orcamentos/:id/delete', Delete);
 end;
+
+initialization
+
+THorseGBSwaggerRegister.RegisterPath(TControllerHistoricoOrcamentos)
 
 end.

@@ -55,7 +55,9 @@ type
     [SwagGet('profissionais/:id', 'Retorna dados de um profissional')]
     [SwagResponse(200, Tpessoas, 'Retorno com sucesso', False)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Professional not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPost('profissionais', 'Regista um novo profissional')]
@@ -68,13 +70,17 @@ type
     [SwagPut('profissionais/:id', 'Atualiza dados de um profissional')]
     [SwagResponse(200, TAPISuccess)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Professional not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagDelete('profissionais/:id/delete', 'Apaga registro e os créditos de um profissional')]
     [SwagResponse(200, TAPISuccess)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Professional not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 

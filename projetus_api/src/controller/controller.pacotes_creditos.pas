@@ -44,7 +44,9 @@ type
     [SwagGet('pacotes-creditos/:id', 'Retorna dados de um pacote de crédito')]
     [SwagResponse(200, Tpacotes_creditos, 'Retorno com sucesso', False)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Credit packs not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPost('pacotes-creditos', 'Regista um novo pacote de créditos')]
@@ -57,13 +59,17 @@ type
     [SwagPut('pacotes-creditos/:id', 'Atualiza dados de um pacote de créditos')]
     [SwagResponse(200, TAPISuccess)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Credit packs not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagDelete('pacotes-creditos/:id/delete', 'Apaga registro de um pacote de crédito')]
     [SwagResponse(200, TAPISuccess)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Credit packs not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
@@ -80,7 +86,7 @@ begin
    oJson := TJSONObject.Create;
   if Req.Params.Count = 0 then
     begin
-        oJson.AddPair('error', 'id service not found');
+        oJson.AddPair('error', 'id credit packs not found');
       Res.Send<TJSONObject>(oJson).Status(500);
       Exit;
     end

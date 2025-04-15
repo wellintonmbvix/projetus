@@ -28,6 +28,7 @@ uses
   model.pessoa,
   model.api.sucess,
   model.api.error,
+  model.api.message,
   controller.dto.pessoa.interfaces,
   controller.dto.pessoa.interfaces.impl,
   controller.dto.contatos.interfaces,
@@ -46,37 +47,41 @@ type
 
     [SwagGet('clientes', 'Retorna listagem de clientes')]
     [SwagResponse(200, Tpessoas, 'Retorno com sucesso', True)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamQuery('nome', 'Nome do cliente', False, False)]
     [SwagParamQuery('email', 'Email do cliente', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagGet('clientes/:id', 'Retorna dados de um cliente')]
     [SwagResponse(200, Tpessoas, 'Retorno com sucesso', False)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPost('clientes', 'Regista um novo cliente')]
     [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamBody('clientes', Tpessoas)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
-    class procedure PostList(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-
     [SwagPut('clientes/:id', 'Atualiza dados de um cliente')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagDelete('clientes/:id/delete', 'Apaga registro e histórico de um cliente')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
@@ -86,12 +91,14 @@ implementation
 
 class procedure TControllerCliente.Registry;
 begin
-  THorse.Get('api/v1/clientes', GetAll)
-        .Get('api/v1/clientes/:id', GetOne)
-        .Post('api/v1/clientes', Post)
-        .Post('api/v1/clientes/lista', PostList)
-        .Put('api/v1/clientes/:id', Put)
-        .Delete('api/v1/clientes/:id/delete', Delete);
+  THorse
+    .Group
+      .Prefix('api/v1')
+        .Get('/clientes', GetAll)
+        .Get('/clientes/:id', GetOne)
+        .Post('/clientes', Post)
+        .Put('/clientes/:id', Put)
+        .Delete('/clientes/:id/delete', Delete);
 end;
 
 class procedure TControllerCliente.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -239,7 +246,7 @@ begin
   if Req.Params.Count = 0 then
     begin
       var oJson := TJSONObject.Create;
-        oJson.AddPair('error', 'id customer not found');
+        oJson.AddPair('message', 'id customer not found');
       Res.Send<TJSONObject>(oJson).Status(500);
       Exit;
     end
@@ -430,31 +437,10 @@ begin
     begin
       // Respondendo com erro
       oJson := TJSONObject.Create;
-      oJson.AddPair('error', E.Message);
+      oJson.AddPair('message', E.Message);
       Res.Send<TJSONObject>(oJson).Status(500);
     end;
   End;
-end;
-
-class procedure TControllerCliente.PostList(Req: THorseRequest; Res: THorseResponse; Next: TProc);
-var
-  jsonObj, oJson: TJSONObject;
-  ja: TJSONArray;
-  jv: TJSONValue;
-begin
-  ja:= Req.Body<TJSONArray>;
-  var IPessoa := TIPessoa.New;
-  for var i := 0 to ja.size - 1 do
-    begin
-      oJson := (ja.Get(i) as TJSONObject);
-      jv := oJson.Get(0).JsonValue;
-      IPessoa
-              .nome(oJson.GetValue<String>('nome'))
-      .Build.Insert;
-    end;
-    oJson := TJSONObject.Create;
-    oJson.AddPair('message', 'procedimento realizado com sucesso!');
-    Res.Send<TJSONObject>(oJson).Status(200);
 end;
 
 class procedure TControllerCliente.Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
@@ -476,13 +462,13 @@ begin
 
 if Req.Params.Count = 0 then
   begin
-    oJson.AddPair('error', 'id customer not found');
+    oJson.AddPair('message', 'id customer not found');
     Res.Send<TJSONObject>(oJson).Status(500);
   end
 else
   if Req.Body.IsEmpty then
     begin
-      oJson.AddPair('error', 'request body not found');
+      oJson.AddPair('message', 'request body not found');
       Res.Send<TJSONObject>(oJson).Status(500);
     end
   else
@@ -496,7 +482,7 @@ else
 
         if (Pessoa = nil) Or (Pessoa.id_pessoa = 0) then
           begin
-            oJson.AddPair('error', 'customer not found');
+            oJson.AddPair('message', 'customer not found');
             Res.Send<TJSONObject>(oJson).Status(404);
             Exit;
           end
@@ -628,7 +614,7 @@ begin
    oJson := TJSONObject.Create;
   if Req.Params.Count = 0 then
     begin
-        oJson.AddPair('error', 'id customer not found');
+        oJson.AddPair('message', 'id customer not found');
       Res.Send<TJSONObject>(oJson).Status(500);
       Exit;
     end
@@ -642,7 +628,7 @@ begin
 
   if Pessoa = nil then
     begin
-      oJson.AddPair('error', 'customer not found');
+      oJson.AddPair('message', 'customer not found');
       Res.Send<TJSONObject>(oJson).Status(404);
       Exit;
     end

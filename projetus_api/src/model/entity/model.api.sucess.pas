@@ -4,10 +4,10 @@ interface
 
 type
   TAPISuccess = class
-    private
-      Fsuccess: String;
-    public
-     property success: String read Fsuccess write Fsuccess;
+  private
+    Fsuccess: String;
+  public
+    property success: String read Fsuccess write Fsuccess;
   end;
 
 implementation

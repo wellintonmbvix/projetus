@@ -46,16 +46,18 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    [SwagProp('id', '', False, True)]
     [Column('id_historico_credito', ftInteger)]
     [Dictionary('id_historico_credito', 'Mensagem de validação', '', '', '', taCenter)]
     property id_historico_credito: Integer read Fid_historico_credito write Fid_historico_credito;
 
+    [SwagProp('id_profissional', '', True, False)]
     [Column('id_pessoa', ftInteger)]
     [ForeignKey('fk_historico_creditos_pessoas', 'id_pessoa', 'pessoas', 'id_pessoa', Cascade, Cascade)]
     [Dictionary('id_pessoa', 'Mensagem de validação', '', '', '', taCenter)]
     property id_pessoa: Integer read Fid_pessoa write Fid_pessoa;
 
-    [SwagProp('pessoa', '', False, True)]
+    [SwagProp('profissional', '', False, True)]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('pessoa', ftString, 60)]
     [JoinColumn('id_pessoa', 'pessoas', 'id_pessoa', 'nome',
@@ -63,7 +65,7 @@ type
     [Dictionary('pessoa', '')]
     property pessoa: nullable<String> read Fpessoa write Fpessoa;
 
-    [SwagProp('pessoa', '', False, True)]
+    [SwagProp('pessoa', '', True, False)]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('tipo_pessoa', ftString, 1)]
     [JoinColumn('id_pessoa', 'pessoas', 'id_pessoa', 'tipo',
@@ -77,6 +79,7 @@ type
     property credito: Double read Fcredito write Fcredito;
 
     [SwagString(1)]
+    [SwagRequired]
     [Column('status', ftString, 1)]
     [Dictionary('status', 'Mensagem de validação', 'U', '', '', taLeftJustify)]
     property status: String read Fstatus write Fstatus;
@@ -89,12 +92,14 @@ type
       '!##/##/####;1;_', taLeftJustify)]
     property dt_inc: TDateTime read Fdt_inc write Fdt_inc;
 
+    [SwagProp('dt_alt', '', False, True)]
     [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_alt', ftDateTime)]
     [Dictionary('dt_alt', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_alt: nullable<TDateTime> read Fdt_alt write Fdt_alt;
 
+    [SwagProp('dt_del', '', False, True)]
     [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_del', ftDateTime)]
     [Dictionary('dt_del', 'Mensagem de validação', 'Now', '',

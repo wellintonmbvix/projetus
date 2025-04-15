@@ -41,25 +41,32 @@ type
     [SwagGet('servicos/:id', 'Retorna dados de um serviço')]
     [SwagResponse(200, Tservicos, 'Retorno com sucesso', False)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Service not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
-    [SwagPost('servicos', 'Regista um novo serviço')]
+    [SwagPost('servicos', 'Registra um novo serviço')]
     [SwagResponse(200, TAPISuccess)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamBody('body', Tservicos)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPut('servicos/:id', 'Atualiza dados de um serviço')]
     [SwagResponse(200, TAPISuccess)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Service not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagDelete('servicos/:id/delete', 'Apaga registro de um serviço')]
     [SwagResponse(200, TAPISuccess)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Service not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 

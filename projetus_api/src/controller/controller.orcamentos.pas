@@ -44,7 +44,9 @@ type
     [SwagGet('orcamentos/:id', 'Retorna dados de um orçamento')]
     [SwagResponse(200, Torcamentos, 'Retorno com sucesso', False)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Budget not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPost('orcamentos', 'Regista um novo orçamento')]
@@ -56,13 +58,17 @@ type
     [SwagPut('orcamentos/:id', 'Atualiza dados de um orçamento')]
     [SwagResponse(200, TAPISuccess)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Budget not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagDelete('orcamentos/:id/delete', 'Apaga registro de um orçamento')]
     [SwagResponse(200, TAPISuccess)]
     [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Budget not found')]
     [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 

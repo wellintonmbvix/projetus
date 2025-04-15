@@ -6,7 +6,9 @@ uses
   DB, 
   Classes, 
   SysUtils, 
-  Generics.Collections, 
+  Generics.Collections,
+
+  GBSwagger.Model.Attributes,
 
   // ormbr
   ormbr.types.blob,
@@ -40,31 +42,41 @@ type
     { Public declarations }
     constructor Create;
     destructor Destroy; override;
+
+    [SwagProp('id', '', False, True)]
     [Column('id_profissional_servico', ftInteger)]
     [Dictionary('id_profissional_servico', 'Mensagem de validação', '', '', '', taCenter)]
     property id_profissional_servico: Integer read Fid_profissional_servico write Fid_profissional_servico;
 
+    [SwagProp('id_profissional', '', True, False)]
     [Column('id_pessoa', ftInteger)]
     [ForeignKey('fk_profissionais_servicos_pessoas', 'id_pessoa', 'pessoas', 'id_pessoa', SetNull, SetNull)]
     [Dictionary('id_pessoa', 'Mensagem de validação', '', '', '', taCenter)]
     property id_pessoa: Integer read Fid_pessoa write Fid_pessoa;
 
+    [SwagRequired]
     [Column('id_servico', ftInteger)]
     [ForeignKey('fk_profissionais_servicos_servicos', 'id_servico', 'servicos', 'id_servico', SetNull, SetNull)]
     [Dictionary('id_servico', 'Mensagem de validação', '', '', '', taCenter)]
     property id_servico: Integer read Fid_servico write Fid_servico;
 
+    [SwagProp('dt_inc', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('dt_inc', ftDateTime)]
     [Dictionary('dt_inc', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_inc: TDateTime read Fdt_inc write Fdt_inc;
 
+    [SwagProp('dt_alt', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_alt', ftDateTime)]
     [Dictionary('dt_alt', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_alt: nullable<TDateTime> read Fdt_alt write Fdt_alt;
 
+    [SwagProp('dt_del', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_del', ftDateTime)]
     [Dictionary('dt_del', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]

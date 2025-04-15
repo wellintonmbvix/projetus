@@ -14,19 +14,61 @@ uses
   Data.DB,
   DBClient,
 
+  Horse.GBSwagger.Register,
+  Horse.GBSwagger.Controller,
+  GBSwagger.Path.Attributes,
+
   uRotinas,
 
   model.historico_creditos,
+  model.api.sucess,
+  model.api.error,
   controller.dto.historico_creditos.interfaces,
   controller.dto.historico_creditos.interfaces.impl;
 
 type
-  TControllerHistoricoCreditos = class
+  [SwagPath('v1', 'Histórico de Créditos')]
+  TControllerHistoricoCreditos = class(THorseGBSwagger)
+    private
+    public
     class procedure Registry;
+
+    [SwagGet('historico-creditos', 'Retorna listagem de movimentações de créditos obtidos e utilizados')]
+    [SwagResponse(200, Thistorico_creditos, 'Retorno com sucesso', True)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamQuery('nome', 'Nome do profissional', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagGet('historico-creditos/:id', 'Retorna dados de uma única movimentação')]
+    [SwagResponse(200, Thistorico_creditos, 'Retorno com sucesso', False)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Credit history not found')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPost('historico-creditos', 'Regista uma nova movimentação')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamBody('body', Thistorico_creditos)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPut('historico-creditos/:id', 'Atualiza dados de uma movimentação de crédito')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Credit history not found')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagDelete('historico-creditos/:id/delete', 'Apaga registro de uma movimentação')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Credit history not found')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
@@ -331,11 +373,18 @@ end;
 
 class procedure TControllerHistoricoCreditos.Registry;
 begin
-  THorse.Get('api/v1/historico-creditos', GetAll)
-        .Get('api/v1/historico-creditos/:id', GetOne)
-        .Post('api/v1/historico-creditos', Post)
-        .Put('api/v1/historico-creditos/:id', Put)
-        .Delete('api/v1/historico-creditos/:id/delete', Delete);
+  THorse
+    .Group
+      .Prefix('api/v1')
+        .Get('/historico-creditos', GetAll)
+        .Get('/historico-creditos/:id', GetOne)
+        .Post('/historico-creditos', Post)
+        .Put('/historico-creditos/:id', Put)
+        .Delete('/historico-creditos/:id/delete', Delete);
 end;
+
+initialization
+
+THorseGBSwaggerRegister.RegisterPath(TControllerHistoricoCreditos)
 
 end.

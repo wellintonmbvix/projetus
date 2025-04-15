@@ -14,19 +14,58 @@ uses
   Data.DB,
   DBClient,
 
+  Horse.GBSwagger.Register,
+  Horse.GBSwagger.Controller,
+  GBSwagger.Path.Attributes,
+
   uRotinas,
 
   model.profissionais_servicos,
+  model.api.sucess,
+  model.api.error,
   controller.dto.profissionais_servicos.interfaces,
   controller.dto.profissionais_servicos.interfaces.impl;
 
 type
-  TControllerProfissionaisServicos = class
+  [SwagPath('v1', 'Profissionais Serviços')]
+  TControllerProfissionaisServicos = class(THorseGBSwagger)
     class procedure Registry;
+
+    [SwagGet('profissionais-servicos', 'Retorna listagem de profissionais e serviço(s) associado(s)')]
+    [SwagResponse(200, Tprofissionais_servicos, 'Retorno com sucesso', True)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagGet('profissionais-servicos/:id', 'Retorna dados de um profissional e seu(s) serviço(s) associado(s)')]
+    [SwagResponse(200, Tprofissionais_servicos, 'Retorno com sucesso', False)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Professional service not found')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPost('profissionais-servicos', 'Associa um serviço a um profissional')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamBody('body', Tprofissionais_servicos)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPut('profissionais-servicos/:id', 'Atualiza a associação de um serviço a um profissional')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Professional service not found')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagDelete('profissionais-servicos/:id/delete', 'Apaga associação de um serviço a um profissional')]
+    [SwagResponse(200, TAPISuccess)]
+    [SwagResponse(400, TAPIError, 'Bad Request')]
+    [SwagResponse(404, TAPIError, 'Professional service not found')]
+    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
@@ -300,11 +339,18 @@ end;
 
 class procedure TControllerProfissionaisServicos.Registry;
 begin
-  THorse.Get('api/v1/profissionais-servicos', GetAll)
-        .Get('api/v1/profissionais-servicos/:id', GetOne)
-        .Post('api/v1/profissionais-servicos', Post)
-        .Put('api/v1/profissionais-servicos/:id', Put)
-        .Delete('api/v1/profissionais-servicos/:id/delete', Delete);
+  THorse
+    .Group
+      .Prefix('api/v1')
+        .Get('/profissionais-servicos', GetAll)
+        .Get('/profissionais-servicos/:id', GetOne)
+        .Post('/profissionais-servicos', Post)
+        .Put('/profissionais-servicos/:id', Put)
+        .Delete('/profissionais-servicos/:id/delete', Delete);
 end;
+
+initialization
+
+THorseGBSwaggerRegister.RegisterPath(TControllerProfissionaisServicos)
 
 end.
