@@ -8,6 +8,8 @@ uses
   SysUtils,
   Generics.Collections,
 
+  GBSwagger.Model.Attributes,
+
   // ormbr
   ormbr.types.blob,
   ormbr.types.lazy,
@@ -46,18 +48,21 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    [SwagProp('id', '', False, True)]
     [Column('id_profissional_pacote_credito', ftInteger)]
     [Dictionary('id_profissional_pacote_credito', 'Mensagem de validação', '', '', '',
       taCenter)]
     property id_profissional_pacote_credito: Integer read Fid_profissional_pacote_credito
       write Fid_profissional_pacote_credito;
 
+    [SwagProp('id_profissional', '', True, False)]
     [Column('id_pessoa', ftInteger)]
     [ForeignKey('fk_profissionais_pacotes_creditos_pessoas', 'id_pessoa',
       'pessoas', 'id_pessoa', Cascade, Cascade)]
     [Dictionary('id_pessoa', 'Mensagem de validação', '', '', '', taCenter)]
     property id_pessoa: Integer read Fid_pessoa write Fid_pessoa;
 
+    [SwagProp('profissional', '', False, True)]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('profissional', ftString, 60)]
     [JoinColumn('id_pessoa', 'pessoas', 'id_pessoa', 'nome',
@@ -65,6 +70,8 @@ type
     [Dictionary('profissional', '')]
     property profissional: nullable<String> read Fprofissional write Fprofissional;
 
+    [SwagNumber]
+    [SwagRequired]
     [Column('id_pacote_credito', ftInteger)]
     [ForeignKey('fk_profissionais_pacotes_creditos_pacotes_creditos',
       'id_pacote_credito', 'pacotes_creditos', 'id_pacote_credito',
@@ -74,6 +81,7 @@ type
     property id_pacote_credito: Integer read Fid_pacote_credito
       write Fid_pacote_credito;
 
+    [SwagProp('pacote', '', False, True)]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('pacote', ftString, 60)]
     [JoinColumn('id_pacote_credito', 'pacotes_creditos', 'id_pacote_credito', 'nome',
@@ -81,6 +89,7 @@ type
     [Dictionary('pacote', '')]
     property pacote: nullable<String> read Fpacote write Fpacote;
 
+    [SwagProp('dias_expirar', '', False, True)]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('dias_expirar', ftInteger)]
     [JoinColumn('id_pacote_credito', 'pacotes_creditos', 'id_pacote_credito',
@@ -88,21 +97,29 @@ type
     [Dictionary('dias_expirar', '')]
     property dias_expirar: Integer read Fdias_expirar write Fdias_expirar;
 
+    [SwagRequired]
+    [SwagDate('dd/mm/YYYY')]
     [Column('data_validade', ftDateTime)]
     [Dictionary('data_validade', 'Mensagem de validação', '', '', '', taCenter)]
     property data_validade: TDateTime read Fdata_validade write Fdata_validade;
 
+    [SwagProp('dt_inc', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('dt_inc', ftDateTime)]
     [Dictionary('dt_inc', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_inc: TDateTime read Fdt_inc write Fdt_inc;
 
+    [SwagProp('dt_alt', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_alt', ftDateTime)]
     [Dictionary('dt_alt', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]
     property dt_alt: nullable<TDateTime> read Fdt_alt write Fdt_alt;
 
+    [SwagProp('dt_del', '', False, True)]
+    [SwagDate('YYYY-mm-dd hh:mm:ss')]
     [Column('dt_del', ftDateTime)]
     [Dictionary('dt_del', 'Mensagem de validação', 'Now', '',
       '!##/##/####;1;_', taLeftJustify)]

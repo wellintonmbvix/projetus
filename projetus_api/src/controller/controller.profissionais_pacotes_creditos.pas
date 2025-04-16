@@ -15,22 +15,63 @@ uses
   Data.DB,
   DBClient,
 
+  Horse.GBSwagger.Register,
+  Horse.GBSwagger.Controller,
+  GBSwagger.Path.Attributes,
+
   uRotinas,
 
   model.pacotes_creditos,
   model.profissionais_pacotes_creditos,
+  model.api.message,
   controller.dto.pacotes_creditos.interfaces,
   controller.dto.pacotes_creditos.interfaces.impl,
   controller.dto.profissionais_pacotes_creditos.interfaces,
   controller.dto.profissionais_pacotes_creditos.interfaces.impl;
 
 type
+  [SwagPath('v1', 'Profissionais Pacotes de Créditos')]
   TControllerProfissionalPacoteCredito = class
     class procedure Registry;
+
+    [SwagGet('profissionais-pacotes-creditos', 'Retorna listagem de profissionais e seus pacotes de créditos')]
+    [SwagResponse(200, Tprofissionais_pacotes_creditos, 'Retorno com sucesso', True)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
+    [SwagParamQuery('profissional', 'Nome do profissional', False, False)]
+    [SwagParamQuery('id_pessoa', 'ID do profissional', False, False)]
+    [SwagParamQuery('id_pacote_credito', 'ID do pacote de crédito', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagGet('profissionais-pacotes-creditos/:id', 'Retorna dados de um profissional e seu pacote de crédito')]
+    [SwagResponse(200, Tprofissionais_pacotes_creditos, 'Retorno com sucesso', False)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Credit packs professional not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPost('profissionais-pacotes-creditos', 'Associa um pacote de crédito a um profissional')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
+    [SwagParamBody('body', Tprofissionais_pacotes_creditos)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagPut('profissionais-pacotes-creditos/:id', 'Atualiza dados de um profissional e seu pacote de crédito')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Credit packs professional not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
+
+    [SwagDelete('profissionais-pacotes-creditos/:id/delete', 'Apaga registro de um pacote de crédito')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Credit packs professional not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
+    [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
@@ -333,11 +374,18 @@ end;
 
 class procedure TControllerProfissionalPacoteCredito.Registry;
 begin
-  THorse.Get('api/v1/profissionais-pacotes-creditos', GetAll)
-        .Get('api/v1/profissionais-pacotes-creditos/:id', GetOne)
-        .Post('api/v1/profissionais-pacotes-creditos', Post)
-        .Put('api/v1/profissionais-pacotes-creditos/:id', Put)
-        .Delete('api/v1/profissionais-pacotes-creditos/:id/delete', Delete);
+  THorse
+    .Group
+      .Prefix('api/v1')
+        .Get('/profissionais-pacotes-creditos', GetAll)
+        .Get('/profissionais-pacotes-creditos/:id', GetOne)
+        .Post('/profissionais-pacotes-creditos', Post)
+        .Put('/profissionais-pacotes-creditos/:id', Put)
+        .Delete('/profissionais-pacotes-creditos/:id/delete', Delete);
 end;
+
+initialization
+
+THorseGBSwaggerRegister.RegisterPath(TControllerProfissionalPacoteCredito)
 
 end.

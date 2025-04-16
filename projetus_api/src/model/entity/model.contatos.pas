@@ -48,7 +48,7 @@ type
     constructor Create;
     destructor Destroy; override;
 
-    [SwagIgnore]
+    [SwagProp('id', '', False, True)]
     [Column('id_contato', ftInteger)]
     [Dictionary('id_contato', 'Mensagem de validação', '', '', '', taCenter)]
     property id_contato: Integer read Fid_contato write Fid_contato;

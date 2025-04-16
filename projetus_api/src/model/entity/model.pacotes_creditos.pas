@@ -42,7 +42,7 @@ type
     Fdt_del: nullable<TDateTime>;
   public 
     { Public declarations }
-    [SwagProp('id_pacote_credito', '', False, True)]
+    [SwagProp('id', '', False, True)]
     [Column('id_pacote_credito', ftInteger)]
     [Dictionary('id_pacote_credito', 'Mensagem de validação', '', '', '', taCenter)]
     property id_pacote_credito: Integer read Fid_pacote_credito write Fid_pacote_credito;

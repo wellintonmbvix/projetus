@@ -74,6 +74,7 @@ type
     property tipo_pessoa: nullable<String> read Ftipo_pessoa write Ftipo_pessoa;
 
     [SwagNumber]
+    [SwagRequired]
     [Column('credito', ftBCD)]
     [Dictionary('credito', 'Mensagem de validação', '0', '', '', taRightJustify)]
     property credito: Double read Fcredito write Fcredito;
