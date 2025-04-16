@@ -24,8 +24,7 @@ uses
   controller.dto.pacotes_creditos.interfaces.impl,
 
   model.pacotes_creditos,
-  model.api.sucess,
-  model.api.error;
+  model.api.message;
 
 type
   [SwagPath('v1', 'Pacote de Créditos')]
@@ -36,39 +35,39 @@ type
 
     [SwagGet('pacotes-creditos', 'Retorna listagem de pacotes de créditos')]
     [SwagResponse(200, Tpacotes_creditos, 'Retorno com sucesso', True)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamQuery('nome', 'Nome do pacote de crédito', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagGet('pacotes-creditos/:id', 'Retorna dados de um pacote de crédito')]
     [SwagResponse(200, Tpacotes_creditos, 'Retorno com sucesso', False)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Credit packs not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Credit packs not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPost('pacotes-creditos', 'Regista um novo pacote de créditos')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamBody('pacotes-creditos', Tpacotes_creditos)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPut('pacotes-creditos/:id', 'Atualiza dados de um pacote de créditos')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Credit packs not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Credit packs not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagDelete('pacotes-creditos/:id/delete', 'Apaga registro de um pacote de crédito')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Credit packs not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Credit packs not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
@@ -362,11 +361,14 @@ end;
 
 class procedure TControllerPacotesCreditos.Registry;
 begin
-  THorse.Get('api/v1/pacotes-creditos', GetAll)
-        .Get('api/v1/pacotes-creditos/:id', GetOne)
-        .Post('api/v1/pacotes-creditos', Post)
-        .Put('api/v1/pacotes-creditos/:id', Put)
-        .Delete('api/v1/pacotes-creditos/:id/delete', Delete);
+  THorse
+    .Group
+      .Prefix('api/v1')
+        .Get('/pacotes-creditos', GetAll)
+        .Get('/pacotes-creditos/:id', GetOne)
+        .Post('/pacotes-creditos', Post)
+        .Put('/pacotes-creditos/:id', Put)
+        .Delete('/pacotes-creditos/:id/delete', Delete);
 end;
 
 initialization

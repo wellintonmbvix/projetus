@@ -21,8 +21,7 @@ uses
   uRotinas,
 
   model.servicos,
-  model.api.sucess,
-  model.api.error,
+  model.api.message,
   controller.dto.servicos.interfaces,
   controller.dto.servicos.interfaces.impl;
 
@@ -33,39 +32,39 @@ type
 
     [SwagGet('servicos', 'Retorna listagem de serviços')]
     [SwagResponse(200, Tservicos, 'Retorno com sucesso', True)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamQuery('nome', 'Nome do serviço', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagGet('servicos/:id', 'Retorna dados de um serviço')]
     [SwagResponse(200, Tservicos, 'Retorno com sucesso', False)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Service not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Service not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPost('servicos', 'Registra um novo serviço')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamBody('body', Tservicos)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPut('servicos/:id', 'Atualiza dados de um serviço')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Service not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Service not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagDelete('servicos/:id/delete', 'Apaga registro de um serviço')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Service not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Service not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
@@ -335,11 +334,14 @@ end;
 
 class procedure TControllerServicos.Registry;
 begin
-  THorse.Get('api/v1/servicos', GetAll)
-        .Get('api/v1/servicos/:id', GetOne)
-        .Post('api/v1/servicos', Post)
-        .Put('api/v1/servicos/:id', Put)
-        .Delete('api/v1/servicos/:id/delete', Delete);
+  THorse
+    .Group
+      .Prefix('api/v1')
+        .Get('/servicos', GetAll)
+        .Get('/servicos/:id', GetOne)
+        .Post('/servicos', Post)
+        .Put('/servicos/:id', Put)
+        .Delete('/servicos/:id/delete', Delete);
 end;
 
 initialization

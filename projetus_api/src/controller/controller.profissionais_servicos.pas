@@ -21,8 +21,7 @@ uses
   uRotinas,
 
   model.profissionais_servicos,
-  model.api.sucess,
-  model.api.error,
+  model.api.message,
   controller.dto.profissionais_servicos.interfaces,
   controller.dto.profissionais_servicos.interfaces.impl;
 
@@ -33,38 +32,38 @@ type
 
     [SwagGet('profissionais-servicos', 'Retorna listagem de profissionais e serviço(s) associado(s)')]
     [SwagResponse(200, Tprofissionais_servicos, 'Retorno com sucesso', True)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagGet('profissionais-servicos/:id', 'Retorna dados de um profissional e seu(s) serviço(s) associado(s)')]
     [SwagResponse(200, Tprofissionais_servicos, 'Retorno com sucesso', False)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Professional service not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Professional service not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPost('profissionais-servicos', 'Associa um serviço a um profissional')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamBody('body', Tprofissionais_servicos)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPut('profissionais-servicos/:id', 'Atualiza a associação de um serviço a um profissional')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Professional service not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Professional service not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagDelete('profissionais-servicos/:id/delete', 'Apaga associação de um serviço a um profissional')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Professional service not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Professional service not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;

@@ -21,8 +21,7 @@ uses
   uRotinas,
 
   model.historico_orcamentos,
-  model.api.sucess,
-  model.api.error,
+  model.api.message,
   controller.dto.historico_orcamentos.interfaces,
   controller.dto.historico_orcamentos.interfaces.impl;
 
@@ -33,39 +32,39 @@ type
 
     [SwagGet('historico-orcamentos', 'Retorna listagem de histórico de orçamentos')]
     [SwagResponse(200, Thistorico_orcamentos, 'Retorno com sucesso', True)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamQuery('nome', 'Nome do cliente', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagGet('historico-orcamentos/:id', 'Retorna dados um único histórico de orçamento')]
     [SwagResponse(200, Thistorico_orcamentos, 'Retorno com sucesso', False)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPost('historico-orcamentos', 'Regista um novo histórico')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamBody('body', Thistorico_orcamentos)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPut('historico-orcamentos/:id', 'Atualiza dados de um histórico')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagDelete('historico-orcamentos/:id/delete', 'Apaga registro de um histórico')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;

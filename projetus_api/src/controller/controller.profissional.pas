@@ -26,8 +26,7 @@ uses
   model.dados_pessoais,
   model.endereco,
   model.pessoa,
-  model.api.sucess,
-  model.api.error,
+  model.api.message,
   controller.dto.pessoa.interfaces,
   controller.dto.pessoa.interfaces.impl,
   controller.dto.contatos.interfaces,
@@ -46,40 +45,40 @@ type
 
     [SwagGet('profissionais', 'Retorna listagem de profissionais')]
     [SwagResponse(200, Tpessoas, 'Retorno com sucesso', True)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamQuery('nome', 'Nome do profissional', False, False)]
     [SwagParamQuery('email', 'Email do profissional', False, False)]
     class procedure GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagGet('profissionais/:id', 'Retorna dados de um profissional')]
     [SwagResponse(200, Tpessoas, 'Retorno com sucesso', False)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Professional not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Professional not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure GetOne(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPost('profissionais', 'Regista um novo profissional')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamBody('profissionais', Tpessoas)]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagPut('profissionais/:id', 'Atualiza dados de um profissional')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Professional not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Professional not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Put(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 
     [SwagDelete('profissionais/:id/delete', 'Apaga registro e os créditos de um profissional')]
-    [SwagResponse(200, TAPISuccess)]
-    [SwagResponse(400, TAPIError, 'Bad Request')]
-    [SwagResponse(404, TAPIError, 'Professional not found')]
-    [SwagResponse(500, TAPIError, 'Internal Server Error')]
+    [SwagResponse(200, TAPIMessage)]
+    [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(404, TAPIMessage, 'Professional not found')]
+    [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamPath('id', 'ID do Registro', True)]
     class procedure Delete(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
@@ -698,11 +697,14 @@ end;
 
 class procedure TControllerProfissional.Registry;
 begin
-  THorse.Get('api/v1/profissionais', GetAll)
-        .Get('api/v1/profissionais/:id', GetOne)
-        .Post('api/v1/profissionais', Post)
-        .Put('api/v1/profissionais/:id', Put)
-        .Delete('api/v1/profissionais/:id/delete', Delete);
+  THorse
+    .Group
+      .Prefix('api/v1')
+        .Get('/profissionais', GetAll)
+        .Get('/profissionais/:id', GetOne)
+        .Post('/profissionais', Post)
+        .Put('/profissionais/:id', Put)
+        .Delete('/profissionais/:id/delete', Delete);
 end;
 
 initialization
