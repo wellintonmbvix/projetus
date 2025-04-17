@@ -178,6 +178,14 @@
         <DCCReference Include="src\controller\controller.historico_orcamentos.pas"/>
         <DCCReference Include="src\view\api.swagger.doc.pas"/>
         <DCCReference Include="src\model\entity\model.api.message.pas"/>
+        <DCCReference Include="src\model\entity\model.usuarios.pas"/>
+        <DCCReference Include="src\model\entity\model.regras.pas"/>
+        <DCCReference Include="src\model\entity\model.usuarios_regras.pas"/>
+        <DCCReference Include="src\controller\dto\controller.dto.usuarios.interfaces.pas"/>
+        <DCCReference Include="src\controller\dto\implementation\controller.dto.usuarios.interfaces.impl.pas"/>
+        <DCCReference Include="src\controller\dto\controller.dto.regras.interfaces.pas"/>
+        <DCCReference Include="src\controller\dto\implementation\controller.dto.regras.interfaces.impl.pas"/>
+        <DCCReference Include="src\controller\controller.usuarios.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

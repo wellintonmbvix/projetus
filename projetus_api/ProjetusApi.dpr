@@ -73,7 +73,15 @@ uses
   controller.dto.historico_orcamentos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.historico_orcamentos.interfaces.impl.pas',
   controller.historico_orcamentos in 'src\controller\controller.historico_orcamentos.pas',
   api.swagger.doc in 'src\view\api.swagger.doc.pas',
-  model.api.message in 'src\model\entity\model.api.message.pas';
+  model.api.message in 'src\model\entity\model.api.message.pas',
+  model.usuarios in 'src\model\entity\model.usuarios.pas',
+  model.regras in 'src\model\entity\model.regras.pas',
+  model.usuarios_regras in 'src\model\entity\model.usuarios_regras.pas',
+  controller.dto.usuarios.interfaces in 'src\controller\dto\controller.dto.usuarios.interfaces.pas',
+  controller.dto.usuarios.interfaces.impl in 'src\controller\dto\implementation\controller.dto.usuarios.interfaces.impl.pas',
+  controller.dto.regras.interfaces in 'src\controller\dto\controller.dto.regras.interfaces.pas',
+  controller.dto.regras.interfaces.impl in 'src\controller\dto\implementation\controller.dto.regras.interfaces.impl.pas',
+  controller.usuarios in 'src\controller\controller.usuarios.pas';
 
 begin
 {$IFDEF MSWINDOWS}
@@ -104,6 +112,7 @@ begin
   TControllerHistoricoCreditos.Registry;
   TControllerOrcamentos.Registry;
   TControllerHistoricoOrcamentos.Registry;
+  TControllerUsuarios.Registry;
   TControllerNummus.Registry;
 
   THorse.Host := '127.0.0.1';

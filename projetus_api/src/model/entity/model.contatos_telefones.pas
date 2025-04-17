@@ -55,6 +55,7 @@ type
     [Dictionary('id_contato', 'Mensagem de validação', '', '', '', taCenter)]
     property id_contato: Integer read Fid_contato write Fid_contato;
 
+    [SwagProp('telefones', 'StringArray ex.: ["(99)00000-0000"]', False, False)]
     [Column('telefones', ftmemo)]
     [Dictionary('telefones', 'Mensagem de validação', '', '', '', taLeftJustify)]
     property telefones: String read Ftelefones write Ftelefones;
