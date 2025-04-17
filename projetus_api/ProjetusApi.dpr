@@ -81,7 +81,8 @@ uses
   controller.dto.usuarios.interfaces.impl in 'src\controller\dto\implementation\controller.dto.usuarios.interfaces.impl.pas',
   controller.dto.regras.interfaces in 'src\controller\dto\controller.dto.regras.interfaces.pas',
   controller.dto.regras.interfaces.impl in 'src\controller\dto\implementation\controller.dto.regras.interfaces.impl.pas',
-  controller.usuarios in 'src\controller\controller.usuarios.pas';
+  controller.usuarios in 'src\controller\controller.usuarios.pas',
+  controller.login in 'src\controller\controller.login.pas';
 
 begin
 {$IFDEF MSWINDOWS}
@@ -113,6 +114,7 @@ begin
   TControllerOrcamentos.Registry;
   TControllerHistoricoOrcamentos.Registry;
   TControllerUsuarios.Registry;
+  TControllerLogin.Registry;
   TControllerNummus.Registry;
 
   THorse.Host := '127.0.0.1';

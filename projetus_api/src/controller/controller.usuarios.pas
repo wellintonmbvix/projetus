@@ -14,7 +14,8 @@ uses
   Data.DB,
   DBClient,
 
-  Bcrypt,
+  BCrypt,
+  BCrypt.Types,
 
   Horse.GBSwagger.Register,
   Horse.GBSwagger.Controller,
@@ -279,10 +280,11 @@ class procedure TControllerUsuarios.Post(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
 var
   oJson: TJSONObject;
-  senhaHash: String;
+  senhaHash, filter: String;
   usuarioRegrasArray: TJSONArray;
   UsuarioRegra: Tusuarios_regras;
   UsuariosRegras: TObjectList<Tusuarios_regras>;
+  Usuarios: TObjectList<Tusuarios>;
 begin
   if Req.Body.IsEmpty then
     raise Exception.Create('user data not found');
@@ -296,7 +298,7 @@ begin
       Exit;
     end;
 
-  senhaHash := TBCrypt.HashPassword(oJson.GetValue<String>('senha_usuario'), 14);
+  senhaHash := TBCrypt.GenerateHash(oJson.GetValue<String>('senha_usuario'), 10);
 
   oJson := Req.Body<TJSONObject>;
   usuarioRegrasArray := oJson.GetValue<TJSONArray>('regras');
@@ -319,16 +321,30 @@ begin
   Try
     var
     IUsuario := TIUsuario.New;
-    IUsuario
-      .id_pessoa(oJson.GetValue<Integer>('id_pessoa'))
-      .nome_usuario(oJson.GetValue<String>('nome_usuario'))
-      .senha_hash(senhaHash)
-      .usuarios_regras(UsuariosRegras)
-     .Build.Insert;
 
-    oJson := TJSONObject.Create;
-    oJson.AddPair('message', 'user registered successfull!');
-    Res.Send<TJSONObject>(oJson).Status(200);
+    filter := 'dt_del is null';
+    filter := filter + ' AND nome_usuario='+
+      QuotedStr(oJson.GetValue<String>('nome_usuario'));
+    IUsuario.Build.ListAll(filter, Usuarios, '');
+
+//    oJson := TJSONObject.Create;
+    if Usuarios.Count > 0 then
+      begin
+        oJson.AddPair('message', 'username already in use');
+        Res.Send<TJSONObject>(oJson).Status(400);
+      end
+    else
+      begin
+        IUsuario
+          .id_pessoa(oJson.GetValue<Integer>('id_pessoa'))
+          .nome_usuario(oJson.GetValue<String>('nome_usuario'))
+          .senha_hash(senhaHash)
+          .usuarios_regras(UsuariosRegras)
+         .Build.Insert;
+        oJson.SetPairs(TList<TJSONPair>.Create);
+        oJson.AddPair('message', 'user registered successfull!');
+        Res.Send<TJSONObject>(oJson).Status(200);
+      end;
   Except
     on E: Exception Do
     begin
@@ -397,7 +413,7 @@ begin
               end;
 
           senhaHash := TBCrypt
-            .HashPassword(oJson.GetValue<String>('senha_usuario'), 14);
+            .GenerateHash(oJson.GetValue<String>('senha_usuario'), 10);
 
           oJson := Req.Body<TJSONObject>;
           usuarioRegrasArray := oJson.GetValue<TJSONArray>('regras');
