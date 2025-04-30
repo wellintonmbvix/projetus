@@ -32,7 +32,7 @@ type
   TControllerLogin = class(THorseGBSwagger)
     class procedure Registry;
 
-    [SwagPost('usuarios', 'Realiza login na API')]
+    [SwagPost('login', 'Realiza login na API')]
     [SwagResponse(200, TAPIMessage)]
     [SwagResponse(400, TAPIMessage, 'Bad Request')]
     [SwagResponse(401, TAPIMessage, 'Unauthorized')]
@@ -103,7 +103,11 @@ begin
   THorse
     .Group
       .Prefix('api/v1')
-      .Post('/login', Post);
+        .Post('/login', Post);
 end;
+
+initialization
+
+THorseGBSwaggerRegister.RegisterPath(TControllerLogin)
 
 end.
