@@ -35,6 +35,7 @@ type
     [SwagPost('usuarios', 'Realiza login na API')]
     [SwagResponse(200, TAPIMessage)]
     [SwagResponse(400, TAPIMessage, 'Bad Request')]
+    [SwagResponse(401, TAPIMessage, 'Unauthorized')]
     [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
@@ -60,7 +61,7 @@ begin
     begin
       oJson.SetPairs(TList<TJSONPair>.Create);
       oJson.AddPair('message', 'O nome e senha do usuário são campos obrigatório!');
-      Res.Send<TJSONObject>(oJson).Status(400);
+      Res.Send<TJSONObject>(oJson).Status(401);
       Exit;
     end;
 
@@ -74,7 +75,7 @@ begin
     begin
       oJson.SetPairs(TList<TJSONPair>.Create);
       oJson.AddPair('message', 'Invalid username or password');
-      Res.Send<TJSONObject>(oJson).Status(400);
+      Res.Send<TJSONObject>(oJson).Status(401);
     end
   else
     begin
@@ -85,7 +86,7 @@ begin
         begin
           oJson.SetPairs(TList<TJSONPair>.Create);
           oJson.AddPair('mesage', 'invalid username or password');
-          Res.Send<TJSONObject>(oJson).Status(400);
+          Res.Send<TJSONObject>(oJson).Status(401);
         end
       else
         begin
