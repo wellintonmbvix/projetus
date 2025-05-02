@@ -82,7 +82,8 @@ uses
   controller.dto.regras.interfaces in 'src\controller\dto\controller.dto.regras.interfaces.pas',
   controller.dto.regras.interfaces.impl in 'src\controller\dto\implementation\controller.dto.regras.interfaces.impl.pas',
   controller.usuarios in 'src\controller\controller.usuarios.pas',
-  controller.login in 'src\controller\controller.login.pas';
+  controller.login in 'src\controller\controller.login.pas',
+  model.usuarios.claims in 'src\model\entity\model.usuarios.claims.pas';
 
 begin
 {$IFDEF MSWINDOWS}

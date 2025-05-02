@@ -187,6 +187,7 @@
         <DCCReference Include="src\controller\dto\implementation\controller.dto.regras.interfaces.impl.pas"/>
         <DCCReference Include="src\controller\controller.usuarios.pas"/>
         <DCCReference Include="src\controller\controller.login.pas"/>
+        <DCCReference Include="src\model\entity\model.usuarios.claims.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
