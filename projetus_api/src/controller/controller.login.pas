@@ -18,6 +18,8 @@ uses
   System.Math,
   System.DateUtils,
 
+  model.usuarios.claims,
+
   Data.DB,
   DBClient,
 
@@ -38,7 +40,7 @@ type
   [SwagPath('v1', 'Login')]
   TControllerLogin = class(THorseGBSwagger)
   private
-    function CriarToken(usuario: Tusuarios): String;
+   class function CriarToken(usuario: Tusuarios): String;
   public
     class procedure Registry;
 
@@ -50,21 +52,34 @@ type
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
-const JWTPassword = 'suaSenhaMaisFraca';
-
 implementation
 
 { TControllerLogin }
 
-function TControllerLogin.CriarToken(usuario: Tusuarios): String;
-var
-  LJWT: TJWT;
-  LToken: String;
+class function TControllerLogin.CriarToken(usuario: Tusuarios): String;
+  var
+    LJWT: TJWT;
+    LClaims: Tusuarios_claims;
+    regras,
+    LToken: String;
 begin
-  LJWT := TJWT.Create();
+  LJWT := TJWT.Create(Tusuarios_claims);
   Try
-    LJWT.Claims.Expiration := IncHour(Now, 1);
-    LJWT.Claims.JWTId := usuario.id_usuario.ToString();
+    LClaims := Tusuarios_claims(LJWT.Claims);
+
+    LClaims.Expiration := IncHour(Now, 1);
+    LClaims.id_usuario := usuario.id_usuario;
+    LClaims.id_pessoa := usuario.id_pessoa;
+    LClaims.nome_usuario := usuario.nome_usuario;
+    regras := '[';
+    for var i := 0 to usuario.usuarios_regras.Count - 1 do
+      begin
+        regras := regras + '"'+usuario.usuarios_regras[i].regra+'"';
+        if i < usuario.usuarios_regras.Count - 1 then
+          regras := regras + ',';
+      end;
+      regras := regras + ']';
+    LClaims.regras := regras;
     LToken := TJOSE.SHA256CompactToken(JWTPassword, LJWT);
   Finally
     FreeAndNil(LJWT);
@@ -121,8 +136,9 @@ begin
     end
     else
     begin
+      var token := CriarToken(usuarios[0]);
       oJson.SetPairs(TList<TJSONPair>.Create);
-      oJson.AddPair('mesage', 'user is valid');
+      oJson.AddPair('Bearer', CriarToken(usuarios[0]));
       Res.Send<TJSONObject>(oJson).Status(200);
     end;
 
