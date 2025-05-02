@@ -138,7 +138,7 @@ begin
     begin
       var token := CriarToken(usuarios[0]);
       oJson.SetPairs(TList<TJSONPair>.Create);
-      oJson.AddPair('Bearer', CriarToken(usuarios[0]));
+      oJson.AddPair('Token', CriarToken(usuarios[0]));
       Res.Send<TJSONObject>(oJson).Status(200);
     end;
 
