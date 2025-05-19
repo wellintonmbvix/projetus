@@ -323,8 +323,8 @@ begin
           else if regras[i] = 'cliente' then
             begin
               regra_permitida := True;
-              if LClaims.id_pessoa <> Req.Params.Items['id'].ToInteger() then
-                id := LClaims.id_pessoa;
+              if LClaims.id_pessoa <> Req.Params.Items['id'] then
+                id := StrToInt(LClaims.id_pessoa);
               break;
             end
           else
@@ -591,8 +591,8 @@ begin
             else if regras[i] = 'cliente' then
               begin
                 regra_permitida := True;
-                if LClaims.id_pessoa <> Req.Params.Items['id'].ToInteger() then
-                  id := LClaims.id_pessoa;
+                if LClaims.id_pessoa <> Req.Params.Items['id'] then
+                  id := StrToInt(LClaims.id_pessoa);
                 break;
               end
             else
@@ -781,8 +781,8 @@ begin
       else if regras[i] = 'cliente' then
         begin
           regra_permitida := True;
-          if LClaims.id_pessoa <> Req.Params.Items['id'].ToInteger() then
-            id := LClaims.id_pessoa;
+          if LClaims.id_pessoa <> Req.Params.Items['id'] then
+            id := StrToInt(LClaims.id_pessoa);
           break;
         end
       else

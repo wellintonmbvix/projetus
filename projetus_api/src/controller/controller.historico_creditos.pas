@@ -14,6 +14,7 @@ uses
   Data.DB,
   DBClient,
 
+  Horse.JWT,
   Horse.GBSwagger.Register,
   Horse.GBSwagger.Controller,
   GBSwagger.Path.Attributes,
@@ -21,6 +22,7 @@ uses
   uRotinas,
 
   model.historico_creditos,
+  model.usuarios.claims,
   model.api.message,
   controller.dto.historico_creditos.interfaces,
   controller.dto.historico_creditos.interfaces.impl;
@@ -80,6 +82,10 @@ class procedure TControllerHistoricoCreditos.Delete(Req: THorseRequest;
 var
   oJson : TJSONObject;
   id: Integer;
+  Limpo: String;
+  LClaims: Tusuarios_claims;
+  regras: TStringList;
+  regra_permitida: Boolean;
 begin
    oJson := TJSONObject.Create;
   if Req.Params.Count = 0 then
@@ -91,35 +97,72 @@ begin
   else
     id := Req.Params.Items['id'].ToInteger();
 
-  var
-  IHistoricoCreditos := TIHistoricoCreditos.New;
-  var
-  HistoricoCreditos: Thistorico_creditos;
+  LClaims := Req.Session<Tusuarios_claims>;
+  Limpo := LClaims.regras;
+  Limpo := StringReplace(Limpo, '[', '', [rfReplaceAll]);
+  Limpo := StringReplace(Limpo, ']', '', [rfReplaceAll]);
+  Limpo := StringReplace(Limpo, '"', '', [rfReplaceAll]);
 
-  HistoricoCreditos := IHistoricoCreditos.Build.ListById('id_historico_credito',
-    id, HistoricoCreditos).This;
+  regras := TStringList.Create;
+  regras.StrictDelimiter := True;
+  regras.Delimiter := ',';
+  regras.DelimitedText := Limpo;
 
-  if HistoricoCreditos = nil then
+  for var i := 0 to regras.Count - 1 do
     begin
-      oJson.AddPair('error', 'credit history not found');
-      Res.Send<TJSONObject>(oJson).Status(404);
-      Exit;
-    end
-    else
-      if HistoricoCreditos.dt_del.HasValue then
+      if regras[i] = 'administrador' then
         begin
-          oJson := TJSONObject.Create;
-          oJson.AddPair('message', 'deleted record');
+          regra_permitida := True;
+          break;
+        end
+      else if regras[i] = 'profissional' then
+        begin
+          regra_permitida := True;
+          if LClaims.id_pessoa <> Req.Params.Items['id'] then
+            id := StrToInt(LClaims.id_pessoa);
+          break;
+        end
+      else
+        regra_permitida := False;
+    end;
+
+  if regra_permitida then
+    begin
+      var
+      IHistoricoCreditos := TIHistoricoCreditos.New;
+      var
+      HistoricoCreditos: Thistorico_creditos;
+
+      HistoricoCreditos := IHistoricoCreditos.Build.ListById('id_historico_credito',
+        id, HistoricoCreditos).This;
+
+      if HistoricoCreditos = nil then
+        begin
+          oJson.AddPair('error', 'credit history not found');
           Res.Send<TJSONObject>(oJson).Status(404);
           Exit;
-        end;
+        end
+        else
+          if HistoricoCreditos.dt_del.HasValue then
+            begin
+              oJson := TJSONObject.Create;
+              oJson.AddPair('message', 'deleted record');
+              Res.Send<TJSONObject>(oJson).Status(404);
+              Exit;
+            end;
 
-  IHistoricoCreditos.Build.Modify(HistoricoCreditos);
-  HistoricoCreditos.dt_del := now();
-  IHistoricoCreditos.Build.Update;
+      IHistoricoCreditos.Build.Modify(HistoricoCreditos);
+      HistoricoCreditos.dt_del := now();
+      IHistoricoCreditos.Build.Update;
 
-  oJson.AddPair('message', 'successfully credit history deleted');
-  Res.Send<TJSONObject>(oJson).Status(200);
+      oJson.AddPair('message', 'successfully credit history deleted');
+      Res.Send<TJSONObject>(oJson).Status(200);
+    end
+  else
+    begin
+      oJson.AddPair('message',TJSONString.Create('invalid rule for this resource'));
+      Res.Send<TJSONObject>(oJson).Status(403);
+    end;
 end;
 
 class procedure TControllerHistoricoCreditos.GetAll(Req: THorseRequest;
@@ -130,8 +173,11 @@ var
   aJson: TJSONArray;
   oJsonResult,
   oJson: TJSONObject;
-  nome,page,perPage,filter,records: String;
+  nome,page,perPage,filter,records,Limpo: String;
   totalPages: Integer;
+  LClaims: Tusuarios_claims;
+  regras: TStringList;
+  regra_permitida: Boolean;
 begin
   Try
     var
@@ -140,61 +186,90 @@ begin
     page := Req.Query['page'];
     perPage := Req.Query['perPage'];
 
-    filter := 'historico_creditos.dt_del is null AND tipo_pessoa="P"';
-    if nome <> EmptyStr then
-      filter := filter + ' AND pessoa LIKE '+QuotedStr('%'+nome+'%');
+    LClaims := Req.Session<Tusuarios_claims>;
+    Limpo := LClaims.regras;
+    Limpo := StringReplace(Limpo, '[', '', [rfReplaceAll]);
+    Limpo := StringReplace(Limpo, ']', '', [rfReplaceAll]);
+    Limpo := StringReplace(Limpo, '"', '', [rfReplaceAll]);
 
-    if page = EmptyStr then
-      page := '1';
+    regras := TStringList.Create;
+    regras.StrictDelimiter := True;
+    regras.Delimiter := ',';
+    regras.DelimitedText := Limpo;
 
-    if perPage = EmptyStr then
-      perPage := '10';
+    for var i := 0 to regras.Count - 1 do
+      if (regras[i] = 'administrador') then
+        begin
+          regra_permitida := True;
+          break;
+        end
+      else
+        regra_permitida := False;
 
-    var registros: Integer;
-    IHistoricoCreditos.Build.GetRecordsNumber('historico_creditos', filter, registros);
-    totalPages := Ceil(registros / perPage.ToInteger());
-    records := IntToStr(registros);
-
-    IHistoricoCreditos.Build.ListPaginate(filter, HistoricosCreditos,
-    'id_historico_credito', StrToInt(perPage),
-      (StrToInt(perPage) * (StrToInt(page) - 1)));
-
-    oJsonResult := TJSONObject.Create;
-    aJson := TJSONArray.Create;
-
-    for HistoricoCreditos in HistoricosCreditos do
+    if regra_permitida then
       begin
-        oJson := TJSONObject.Create;
-        oJson.AddPair('id_historico_credito',
-          TJSONNumber.Create(HistoricoCreditos.id_historico_credito));
-        oJson.AddPair('id_pessoa',
-          TJSONNumber.Create(HistoricoCreditos.id_pessoa));
-        oJson.AddPair('pessoa',
-          TJSONString.Create(HistoricoCreditos.pessoa.Value));
-        oJson.AddPair('credito',
-          TJSONNumber.Create(HistoricoCreditos.credito));
-        if HistoricoCreditos.status = 'U' then
-          oJson.AddPair('status',
-            TJSONString.Create('Utilizado'))
-        else
-          oJson.AddPair('status',
-            TJSONString.Create('Obtido'));
+        filter := 'historico_creditos.dt_del is null AND tipo_pessoa="P"';
+        if nome <> EmptyStr then
+          filter := filter + ' AND pessoa LIKE '+QuotedStr('%'+nome+'%');
 
-        oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz',
-          HistoricoCreditos.dt_inc));
-        if HistoricoCreditos.dt_alt.HasValue then
-          oJson.AddPair('alterado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', HistoricoCreditos.dt_alt.Value))
-        else
-          oJson.AddPair('alterado_em', TJSONNull.Create);
+        if page = EmptyStr then
+          page := '1';
 
-       aJson.AddElement(oJson);
+        if perPage = EmptyStr then
+          perPage := '10';
+
+        var registros: Integer;
+        IHistoricoCreditos.Build.GetRecordsNumber('historico_creditos', filter, registros);
+        totalPages := Ceil(registros / perPage.ToInteger());
+        records := IntToStr(registros);
+
+        IHistoricoCreditos.Build.ListPaginate(filter, HistoricosCreditos,
+        'id_historico_credito', StrToInt(perPage),
+          (StrToInt(perPage) * (StrToInt(page) - 1)));
+
+        oJsonResult := TJSONObject.Create;
+        aJson := TJSONArray.Create;
+
+        for HistoricoCreditos in HistoricosCreditos do
+          begin
+            oJson := TJSONObject.Create;
+            oJson.AddPair('id_historico_credito',
+              TJSONNumber.Create(HistoricoCreditos.id_historico_credito));
+            oJson.AddPair('id_pessoa',
+              TJSONNumber.Create(HistoricoCreditos.id_pessoa));
+            oJson.AddPair('pessoa',
+              TJSONString.Create(HistoricoCreditos.pessoa.Value));
+            oJson.AddPair('credito',
+              TJSONNumber.Create(HistoricoCreditos.credito));
+            if HistoricoCreditos.status = 'U' then
+              oJson.AddPair('status',
+                TJSONString.Create('Utilizado'))
+            else
+              oJson.AddPair('status',
+                TJSONString.Create('Obtido'));
+
+            oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz',
+              HistoricoCreditos.dt_inc));
+            if HistoricoCreditos.dt_alt.HasValue then
+              oJson.AddPair('alterado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', HistoricoCreditos.dt_alt.Value))
+            else
+              oJson.AddPair('alterado_em', TJSONNull.Create);
+
+           aJson.AddElement(oJson);
+          end;
+
+        oJsonResult.AddPair('data', aJson);
+        oJsonResult.AddPair('records', records);
+        oJsonResult.AddPair('page', page);
+        oJsonResult.AddPair('totalPages', TJSONNumber.Create(totalPages));
+        Res.Send<TJSONObject>(oJsonResult);
+      end
+    else
+      begin
+        oJsonResult := TJSONObject.Create;
+        oJsonResult.AddPair('message',TJSONString.Create('invalid rule for this resource'));
+        Res.Send<TJSONObject>(oJsonResult).Status(403);
       end;
-
-    oJsonResult.AddPair('data', aJson);
-    oJsonResult.AddPair('records', records);
-    oJsonResult.AddPair('page', page);
-    oJsonResult.AddPair('totalPages', TJSONNumber.Create(totalPages));
-    Res.Send<TJSONObject>(oJsonResult);
   Except
     on E: Exception do
       begin
@@ -209,6 +284,10 @@ class procedure TControllerHistoricoCreditos.GetOne(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
 var
   id: Integer;
+  Limpo: String;
+  LClaims: Tusuarios_claims;
+  regras: TStringList;
+  regra_permitida: Boolean;
 begin
   if Req.Params.Count = 0 then
     begin
@@ -220,78 +299,196 @@ begin
   else
     id := Req.Params.Items['id'].ToInteger();
 
-  var
-  IHistoricoServicos := TIHistoricoCreditos.New;
-  var
-  HistoricoCreditos: Thistorico_creditos;
+  LClaims := Req.Session<Tusuarios_claims>;
+  Limpo := LClaims.regras;
+  Limpo := StringReplace(Limpo, '[', '', [rfReplaceAll]);
+  Limpo := StringReplace(Limpo, ']', '', [rfReplaceAll]);
+  Limpo := StringReplace(Limpo, '"', '', [rfReplaceAll]);
 
-  IHistoricoServicos.Build.ListById('id_historico_credito', id, HistoricoCreditos);
-  if HistoricoCreditos = nil then
+  regras := TStringList.Create;
+  regras.StrictDelimiter := True;
+  regras.Delimiter := ',';
+  regras.DelimitedText := Limpo;
+
+  for var i := 0 to regras.Count - 1 do
     begin
-      var oJson := TJSONObject.Create;
-        oJson.AddPair('message', 'service not found');
-      Res.Send<TJSONObject>(oJson).Status(404);
-    end
-  else
+      if regras[i] = 'administrador' then
+        begin
+          regra_permitida := True;
+          break;
+        end
+      else if regras[i] = 'profissional' then
+        begin
+          regra_permitida := True;
+          if LClaims.id_pessoa <> Req.Params.Items['id'] then
+            id := StrToInt(LClaims.id_pessoa);
+          break;
+        end
+      else
+        regra_permitida := False;
+    end;
+
+  if regra_permitida then
     begin
-      if HistoricoCreditos.dt_del.HasValue then
+      var
+      IHistoricoCreditos := TIHistoricoCreditos.New;
+      var
+      HistoricoCreditos: Thistorico_creditos;
+
+      IHistoricoCreditos.Build.ListById('id_historico_credito', id, HistoricoCreditos);
+      if HistoricoCreditos = nil then
         begin
           var oJson := TJSONObject.Create;
-          oJson.AddPair('message', 'service not found');
+            oJson.AddPair('message', 'service not found');
           Res.Send<TJSONObject>(oJson).Status(404);
         end
       else
         begin
-          var oJson := TJSONObject.Create;
-          oJson.AddPair('id_historico_credito',
-            TJSONNumber.Create(HistoricoCreditos.id_historico_credito));
-          oJson.AddPair('id_pessoa',
-            TJSONNumber.Create(HistoricoCreditos.id_pessoa));
-          oJson.AddPair('pessoa',
-            TJSONString.Create(HistoricoCreditos.pessoa.Value));
-
-          oJson.AddPair('credito',
-            TJSONNumber.Create(HistoricoCreditos.credito));
-          if HistoricoCreditos.status = 'U' then
-            oJson.AddPair('status',
-              TJSONString.Create('Utilizado'))
+          if HistoricoCreditos.dt_del.HasValue then
+            begin
+              var oJson := TJSONObject.Create;
+              oJson.AddPair('message', 'service not found');
+              Res.Send<TJSONObject>(oJson).Status(404);
+            end
           else
-            oJson.AddPair('status',
-              TJSONString.Create('Obtido'));
+            begin
+              var oJson := TJSONObject.Create;
+              oJson.AddPair('id_historico_credito',
+                TJSONNumber.Create(HistoricoCreditos.id_historico_credito));
+              oJson.AddPair('id_pessoa',
+                TJSONNumber.Create(HistoricoCreditos.id_pessoa));
+              oJson.AddPair('pessoa',
+                TJSONString.Create(HistoricoCreditos.pessoa.Value));
 
-          oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz',
-            HistoricoCreditos.dt_inc));
-          if HistoricoCreditos.dt_alt.HasValue then
-            oJson.AddPair('alterado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', HistoricoCreditos.dt_alt.Value))
-          else
-            oJson.AddPair('alterado_em', TJSONNull.Create);
+              oJson.AddPair('credito',
+                TJSONNumber.Create(HistoricoCreditos.credito));
+              if HistoricoCreditos.status = 'U' then
+                oJson.AddPair('status',
+                  TJSONString.Create('Utilizado'))
+              else
+                oJson.AddPair('status',
+                  TJSONString.Create('Obtido'));
 
-          Res.Send<TJSONObject>(oJson).Status(200);
+              oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz',
+                HistoricoCreditos.dt_inc));
+              if HistoricoCreditos.dt_alt.HasValue then
+                oJson.AddPair('alterado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', HistoricoCreditos.dt_alt.Value))
+              else
+                oJson.AddPair('alterado_em', TJSONNull.Create);
+
+              Res.Send<TJSONObject>(oJson).Status(200);
+            end;
         end;
+    end
+  else
+    begin
+      var oJson := TJSONObject.Create;
+      oJson.AddPair('message',TJSONString.Create('invalid rule for this resource'));
+      Res.Send<TJSONObject>(oJson).Status(403);
     end;
 end;
 
 class procedure TControllerHistoricoCreditos.Post(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
 var
+  id: Integer;
   oJson: TJSONObject;
+  filter,
+  status,
+  Limpo: String;
+  LClaims: Tusuarios_claims;
+  regras: TStringList;
+  regra_permitida: Boolean;
+  credito,
+  saldo: Currency;
 begin
   if Req.Body.IsEmpty then
     raise Exception.Create('credits history data not found');
 
   oJson := Req.Body<TJSONObject>;
   Try
-    var
-    IHistoricoCreditos := TIHistoricoCreditos.New;
-    IHistoricoCreditos
-      .id_pessoa(oJson.GetValue<Integer>('id_pessoa'))
-      .credito(oJson.GetValue<Currency>('credito'))
-      .status(IfThen(oJson.GetValue<String>('status') = 'Obtido', 'O', 'U'))
-     .Build.Insert;
+    id := oJson.GetValue<Integer>('id_pessoa');
 
-    oJson := TJSONObject.Create;
-    oJson.AddPair('message', 'credits history registered successfull!');
-    Res.Send<TJSONObject>(oJson).Status(200);
+    LClaims := Req.Session<Tusuarios_claims>;
+    Limpo := LClaims.regras;
+    Limpo := StringReplace(Limpo, '[', '', [rfReplaceAll]);
+    Limpo := StringReplace(Limpo, ']', '', [rfReplaceAll]);
+    Limpo := StringReplace(Limpo, '"', '', [rfReplaceAll]);
+
+    regras := TStringList.Create;
+    regras.StrictDelimiter := True;
+    regras.Delimiter := ',';
+    regras.DelimitedText := Limpo;
+
+    for var i := 0 to regras.Count - 1 do
+      begin
+        if regras[i] = 'administrador' then
+          begin
+            regra_permitida := True;
+            break;
+          end
+        else if regras[i] = 'profissional' then
+          begin
+            regra_permitida := True;
+            if LClaims.id_pessoa <> id.ToString then
+              id := StrToInt(LClaims.id_pessoa);
+            break;
+          end
+        else
+          regra_permitida := False;
+      end;
+
+    if regra_permitida then
+      begin
+        var
+        IHistoricoCreditos := TIHistoricoCreditos.New;
+        var
+        HistoricoCreditos: TObjectList<Thistorico_creditos>;
+        var
+        HistoricoCredito: Thistorico_creditos;
+
+        filter := 'historico_creditos.dt_del is null AND historico_creditos.id_pessoa='+id.ToString;
+        IHistoricoCreditos.Build.ListAll(filter,HistoricoCreditos,'id_historico_credito');
+
+        for HistoricoCredito In HistoricoCreditos do
+          begin
+            if HistoricoCredito.status = 'O' then
+              saldo := saldo + HistoricoCredito.credito
+            else
+              saldo := saldo + (HistoricoCredito.credito * -1)
+          end;
+
+        status := IfThen(oJson.GetValue<String>('status') = 'Obtido', 'O', 'U');
+        credito := oJson.GetValue<Currency>('credito');
+
+        if (status = 'U') And ((saldo < oJson.GetValue<Currency>('credito')) Or
+        (saldo <= 0)) then
+          begin
+            oJson := TJSONObject.Create;
+            oJson.AddPair('message', 'insufficient balance to complete the transaction.');
+            oJson.AddPair('required_balance',TJSONNumber.Create(credito));
+            oJson.AddPair('current_balance',TJSONNumber.Create(saldo));
+            Res.Send<TJSONObject>(oJson).Status(400);
+          end
+        else
+          begin
+            IHistoricoCreditos
+              .id_pessoa(id)
+              .credito(credito)
+              .status(status)
+             .Build.Insert;
+
+            oJson := TJSONObject.Create;
+            oJson.AddPair('message', 'credits history registered successfull!');
+            Res.Send<TJSONObject>(oJson).Status(200);
+          end;
+      end
+    else
+      begin
+        oJson := TJSONObject.Create;
+        oJson.AddPair('message',TJSONString.Create('invalid rule for this resource'));
+        Res.Send<TJSONObject>(oJson).Status(403);
+      end;
   Except
     on E: Exception Do
     begin
@@ -309,6 +506,12 @@ var
   oJson: TJSONObject;
   HistoricoCreditos: Thistorico_creditos;
   id: Integer;
+  filter,
+  Limpo: String;
+  LClaims: Tusuarios_claims;
+  regras: TStringList;
+  regra_permitida: Boolean;
+  saldo: Currency;
 begin
   oJson := TJSONObject.Create;
   if Req.Params.Count = 0 then
@@ -326,47 +529,114 @@ begin
       begin
         id := Req.Params.Items['id'].ToInteger();
 
-        Try
-          var
-          IHistoricoCreditos := TIHistoricoCreditos.New;
-          HistoricoCreditos := IHistoricoCreditos.Build.ListById('id_historico_credito', id, HistoricoCreditos).This;
+        LClaims := Req.Session<Tusuarios_claims>;
+        Limpo := LClaims.regras;
+        Limpo := StringReplace(Limpo, '[', '', [rfReplaceAll]);
+        Limpo := StringReplace(Limpo, ']', '', [rfReplaceAll]);
+        Limpo := StringReplace(Limpo, '"', '', [rfReplaceAll]);
 
-          if (HistoricoCreditos = nil) Or (HistoricoCreditos.id_historico_credito = 0) then
-            begin
-              oJson.AddPair('error', 'service not found');
-              Res.Send<TJSONObject>(oJson).Status(404);
-              Exit;
-            end
-          else
-            if HistoricoCreditos.dt_del.HasValue then
+        regras := TStringList.Create;
+        regras.StrictDelimiter := True;
+        regras.Delimiter := ',';
+        regras.DelimitedText := Limpo;
+
+        for var i := 0 to regras.Count - 1 do
+          begin
+            if regras[i] = 'administrador' then
               begin
-                oJson := TJSONObject.Create;
-                oJson.AddPair('message', 'deleted record');
-                Res.Send<TJSONObject>(oJson).Status(404);
-                Exit;
-              end;
+                regra_permitida := True;
+                break;
+              end
+            else if regras[i] = 'profissional' then
+              begin
+                regra_permitida := True;
+                if LClaims.id_pessoa <> Req.Params.Items['id'] then
+                  id := StrToInt(LClaims.id_pessoa);
+                break;
+              end
+            else
+              regra_permitida := False;
+          end;
 
-          oJson := Req.Body<TJSONObject>;
-          IHistoricoCreditos.Build.Modify(HistoricoCreditos);
-          With HistoricoCreditos Do
-            begin
-              id_pessoa := oJson.GetValue<Integer>('id_pessoa');
-              credito := oJson.GetValue<Currency>('credito');
-              status := IfThen(oJson.GetValue<String>('status') = 'Obtido', 'O', 'U');
-              dt_alt := now();
-            end;
-          IHistoricoCreditos.Build.Update;
-          oJson := TJSONObject.Create;
-          oJson.AddPair('message', 'credits history changed successfull!');
-          Res.Send<TJSONObject>(oJson).Status(200);
-        Except
-          on E: Exception Do
-            begin
-              oJson := TJSONObject.Create;
-              oJson.AddPair('error', E.Message);
-              Res.Send<TJSONObject>(oJson).Status(500);
-            end;
-        End;
+        if regra_permitida then
+          begin
+            Try
+              var
+              IHistoricoCreditos := TIHistoricoCreditos.New;
+              var
+              HistoricosCreditos: TObjectList<Thistorico_creditos>;
+              filter := 'historico_creditos.dt_del is null and historico_creditos.id_pessoa='+id.ToString;
+              IHistoricoCreditos.Build.ListAll(filter,HistoricosCreditos,'');
+
+              for HistoricoCreditos In HistoricosCreditos do
+                begin
+                  if HistoricoCreditos.status = 'U' then
+                    saldo := saldo + (HistoricoCreditos.credito * -1)
+                  else
+                    saldo := saldo + HistoricoCreditos.credito;
+                end;
+
+              if (oJson.GetValue<String>('status') = 'Utilizado')
+                And ((saldo < oJson.GetValue<Currency>('credito')) Or
+                (saldo <= 0)) then
+                  begin
+                    oJson := TJSONObject.Create;
+                    oJson.AddPair('message', 'insufficient balance to complete the transaction.');
+                    oJson.AddPair('required_balance',TJSONNumber.Create(oJson.GetValue<Currency>('credito')));
+                    oJson.AddPair('current_balance',TJSONNumber.Create(saldo));
+                    Res.Send<TJSONObject>(oJson).Status(400);
+                  end
+                else
+                  begin
+                    HistoricoCreditos := IHistoricoCreditos.Build
+                      .ListById('id_historico_credito', id,
+                        HistoricoCreditos).This;
+
+                    if (HistoricoCreditos = nil) Or
+                      (HistoricoCreditos.id_historico_credito = 0) then
+                      begin
+                        oJson.AddPair('error', 'credits history not found');
+                        Res.Send<TJSONObject>(oJson).Status(404);
+                        Exit;
+                      end
+                    else
+                      if HistoricoCreditos.dt_del.HasValue then
+                        begin
+                          oJson := TJSONObject.Create;
+                          oJson.AddPair('message', 'deleted record');
+                          Res.Send<TJSONObject>(oJson).Status(404);
+                          Exit;
+                        end;
+
+                    oJson := Req.Body<TJSONObject>;
+                    IHistoricoCreditos.Build.Modify(HistoricoCreditos);
+                    With HistoricoCreditos Do
+                      begin
+                        id_pessoa := oJson.GetValue<Integer>('id_pessoa');
+                        credito := oJson.GetValue<Currency>('credito');
+                        status := IfThen(oJson.GetValue<String>('status') = 'Obtido', 'O', 'U');
+                        dt_alt := now();
+                      end;
+                    IHistoricoCreditos.Build.Update;
+                    oJson := TJSONObject.Create;
+                    oJson.AddPair('message', 'credits history changed successfull!');
+                    Res.Send<TJSONObject>(oJson).Status(200);
+                  end;
+            Except
+              on E: Exception Do
+                begin
+                  oJson := TJSONObject.Create;
+                  oJson.AddPair('error', E.Message);
+                  Res.Send<TJSONObject>(oJson).Status(500);
+                end;
+            End;
+          end
+        else
+          begin
+            oJson := TJSONObject.Create;
+            oJson.AddPair('message',TJSONString.Create('invalid rule for this resource'));
+            Res.Send<TJSONObject>(oJson).Status(403);
+          end;
       end;
 end;
 
@@ -375,11 +645,16 @@ begin
   THorse
     .Group
       .Prefix('api/v1')
-        .Get('/historico-creditos', GetAll)
-        .Get('/historico-creditos/:id', GetOne)
-        .Post('/historico-creditos', Post)
-        .Put('/historico-creditos/:id', Put)
-        .Delete('/historico-creditos/:id/delete', Delete);
+        .AddCallback(HorseJWT(JWTPassword, THorseJWTConfig.New.SessionClass(Tusuarios_claims)))
+          .Get('/historico-creditos', GetAll)
+        .AddCallback(HorseJWT(JWTPassword, THorseJWTConfig.New.SessionClass(Tusuarios_claims)))
+          .Get('/historico-creditos/:id', GetOne)
+        .AddCallback(HorseJWT(JWTPassword, THorseJWTConfig.New.SessionClass(Tusuarios_claims)))
+          .Post('/historico-creditos', Post)
+        .AddCallback(HorseJWT(JWTPassword, THorseJWTConfig.New.SessionClass(Tusuarios_claims)))
+          .Put('/historico-creditos/:id', Put)
+        .AddCallback(HorseJWT(JWTPassword, THorseJWTConfig.New.SessionClass(Tusuarios_claims)))
+          .Delete('/historico-creditos/:id/delete', Delete);
 end;
 
 initialization

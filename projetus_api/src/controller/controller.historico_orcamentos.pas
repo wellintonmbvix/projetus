@@ -14,6 +14,7 @@ uses
   Data.DB,
   DBClient,
 
+  Horse.JWT,
   Horse.GBSwagger.Register,
   Horse.GBSwagger.Controller,
   GBSwagger.Path.Attributes,
@@ -21,6 +22,7 @@ uses
   uRotinas,
 
   model.historico_orcamentos,
+  model.usuarios.claims,
   model.api.message,
   controller.dto.historico_orcamentos.interfaces,
   controller.dto.historico_orcamentos.interfaces.impl;
@@ -78,6 +80,10 @@ class procedure TControllerHistoricoOrcamentos.Delete(Req: THorseRequest;
 var
   oJson : TJSONObject;
   id: Integer;
+  Limpo: String;
+  LClaims: Tusuarios_claims;
+  regras: TStringList;
+  regra_permitida: Boolean;
 begin
    oJson := TJSONObject.Create;
   if Req.Params.Count = 0 then
@@ -89,35 +95,66 @@ begin
   else
     id := Req.Params.Items['id'].ToInteger();
 
-  var
-  IHistoricoOrcamentos := TIHistoricoOrcamentos.New;
-  var
-  HistoricoOrcamentos: Thistorico_orcamentos;
+  LClaims := Req.Session<Tusuarios_claims>;
+  Limpo := LClaims.regras;
+  Limpo := StringReplace(Limpo, '[', '', [rfReplaceAll]);
+  Limpo := StringReplace(Limpo, ']', '', [rfReplaceAll]);
+  Limpo := StringReplace(Limpo, '"', '', [rfReplaceAll]);
 
-  HistoricoOrcamentos := IHistoricoOrcamentos.Build.ListById('id_historico_orcamento',
-    id, HistoricoOrcamentos).This;
+  regras := TStringList.Create;
+  regras.StrictDelimiter := True;
+  regras.Delimiter := ',';
+  regras.DelimitedText := Limpo;
 
-  if HistoricoOrcamentos = nil then
+  for var i := 0 to regras.Count - 1 do
     begin
-      oJson.AddPair('error', 'budget history not found');
-      Res.Send<TJSONObject>(oJson).Status(404);
-      Exit;
-    end
-    else
-      if HistoricoOrcamentos.dt_del.HasValue then
+      if regras[i] = 'administrador' then
         begin
-          oJson := TJSONObject.Create;
-          oJson.AddPair('error', 'deleted record');
+          regra_permitida := True;
+          break;
+        end
+      else
+        regra_permitida := False;
+    end;
+
+  if regra_permitida then
+    begin
+      var
+      IHistoricoOrcamentos := TIHistoricoOrcamentos.New;
+      var
+      HistoricoOrcamentos: Thistorico_orcamentos;
+
+      HistoricoOrcamentos := IHistoricoOrcamentos.Build.ListById('id_historico_orcamento',
+        id, HistoricoOrcamentos).This;
+
+      if HistoricoOrcamentos = nil then
+        begin
+          oJson.AddPair('error', 'budget history not found');
           Res.Send<TJSONObject>(oJson).Status(404);
           Exit;
-        end;
+        end
+        else
+          if HistoricoOrcamentos.dt_del.HasValue then
+            begin
+              oJson := TJSONObject.Create;
+              oJson.AddPair('error', 'deleted record');
+              Res.Send<TJSONObject>(oJson).Status(404);
+              Exit;
+            end;
 
-  IHistoricoOrcamentos.Build.Modify(HistoricoOrcamentos);
-  HistoricoOrcamentos.dt_del := now();
-  IHistoricoOrcamentos.Build.Update;
+      IHistoricoOrcamentos.Build.Modify(HistoricoOrcamentos);
+      HistoricoOrcamentos.dt_del := now();
+      IHistoricoOrcamentos.Build.Update;
 
-  oJson.AddPair('success', 'successfully budget history deleted');
-  Res.Send<TJSONObject>(oJson).Status(200);
+      oJson.AddPair('success', 'successfully budget history deleted');
+      Res.Send<TJSONObject>(oJson).Status(200);
+    end
+  else
+    begin
+      oJson := TJSONObject.Create;
+      oJson.AddPair('message',TJSONString.Create('invalid rule for this resource'));
+      Res.Send<TJSONObject>(oJson).Status(403);
+    end;
 end;
 
 class procedure TControllerHistoricoOrcamentos.GetAll(Req: THorseRequest;
@@ -128,8 +165,15 @@ var
   aJson: TJSONArray;
   oJsonResult,
   oJson: TJSONObject;
-  nome,page,perPage,filter,records: String;
+  nome,
+  page,
+  perPage,
+  filter,
+  records,
+  Limpo: String;
   totalPages: Integer;
+  LClaims: Tusuarios_claims;
+  regras: TStringList;
 begin
   Try
     var
@@ -147,6 +191,30 @@ begin
 
     if perPage = EmptyStr then
       perPage := '10';
+
+    LClaims := Req.Session<Tusuarios_claims>;
+    Limpo := LClaims.regras;
+    Limpo := StringReplace(Limpo, '[', '', [rfReplaceAll]);
+    Limpo := StringReplace(Limpo, ']', '', [rfReplaceAll]);
+    Limpo := StringReplace(Limpo, '"', '', [rfReplaceAll]);
+
+    regras := TStringList.Create;
+    regras.StrictDelimiter := True;
+    regras.Delimiter := ',';
+    regras.DelimitedText := Limpo;
+
+    {
+      // Caso haja regra "cliente" no usuário requisitante
+      // adiciona filtro por pessoa do id_pessoa usuário logado
+    }
+    for var i := 0 to regras.Count - 1 do
+      begin
+        if regras[i] = 'cliente' then
+        begin
+          filter := filter + ' AND historico_orcamentos.id_pessoa='+LClaims.id_pessoa;
+          break;
+        end;
+      end;
 
     var registros: Integer;
     IHistoricoOrcamentos.Build.GetRecordsNumber('historico_orcamentos', filter, registros);
@@ -202,7 +270,12 @@ end;
 class procedure TControllerHistoricoOrcamentos.GetOne(Req: THorseRequest;
   Res: THorseResponse; Next: TProc);
 var
-  id: Integer;
+  id,
+  id_pessoa: Integer;
+  Limpo: String;
+  LClaims: Tusuarios_claims;
+  regras: TStringList;
+  regra_permitida: Boolean;
 begin
   if Req.Params.Count = 0 then
     begin
@@ -213,6 +286,28 @@ begin
     end
   else
     id := Req.Params.Items['id'].ToInteger();
+
+  LClaims := Req.Session<Tusuarios_claims>;
+  Limpo := LClaims.regras;
+  Limpo := StringReplace(Limpo, '[', '', [rfReplaceAll]);
+  Limpo := StringReplace(Limpo, ']', '', [rfReplaceAll]);
+  Limpo := StringReplace(Limpo, '"', '', [rfReplaceAll]);
+
+  regras := TStringList.Create;
+  regras.StrictDelimiter := True;
+  regras.Delimiter := ',';
+  regras.DelimitedText := Limpo;
+
+  for var i := 0 to regras.Count - 1 do
+    begin
+      if regras[i] = 'cliente' then
+        begin
+          id_pessoa := StrToInt(LClaims.id_pessoa);
+          break;
+        end
+      else
+        id_pessoa := -1;
+    end;
 
   var
   IHistoricoOrcamentos := TIHistoricoOrcamentos.New;
@@ -238,27 +333,36 @@ begin
       else
         begin
           var oJson := TJSONObject.Create;
-          oJson.AddPair('id',
-            TJSONNumber.Create(HistoricoOrcamentos.id_historico_orcamento));
-          oJson.AddPair('orcamento',
-            TJSONNumber.Create(HistoricoOrcamentos.id_orcamento));
-          oJson.AddPair('id_cliente',
-            TJSONNumber.Create(HistoricoOrcamentos.id_pessoa));
-          oJson.AddPair('cliente',
-            TJSONString.Create(HistoricoOrcamentos.cliente.Value));
-          oJson.AddPair('status',
-            TJSONString.Create(HistoricoOrcamentos.status));
 
-          oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz',
-            HistoricoOrcamentos.dt_inc));
-          if HistoricoOrcamentos.dt_alt.HasValue then
-            oJson.AddPair('alterado_em',
-              FormatDateTime('YYY-mm-dd hh:mm:ss.zzz',
-                HistoricoOrcamentos.dt_alt.Value))
+          if (id_pessoa <> HistoricoOrcamentos.id_pessoa) And (id_pessoa = -1) then
+            begin
+              oJson.AddPair('message',TJSONString.Create('invalid rule for this resource'));
+              Res.Send<TJSONObject>(oJson).Status(403);
+            end
           else
-            oJson.AddPair('alterado_em', TJSONNull.Create);
+            begin
+              oJson.AddPair('id',
+                TJSONNumber.Create(HistoricoOrcamentos.id_historico_orcamento));
+              oJson.AddPair('orcamento',
+                TJSONNumber.Create(HistoricoOrcamentos.id_orcamento));
+              oJson.AddPair('id_cliente',
+                TJSONNumber.Create(HistoricoOrcamentos.id_pessoa));
+              oJson.AddPair('cliente',
+                TJSONString.Create(HistoricoOrcamentos.cliente.Value));
+              oJson.AddPair('status',
+                TJSONString.Create(HistoricoOrcamentos.status));
 
-          Res.Send<TJSONObject>(oJson).Status(200);
+              oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz',
+                HistoricoOrcamentos.dt_inc));
+              if HistoricoOrcamentos.dt_alt.HasValue then
+                oJson.AddPair('alterado_em',
+                  FormatDateTime('YYY-mm-dd hh:mm:ss.zzz',
+                    HistoricoOrcamentos.dt_alt.Value))
+              else
+                oJson.AddPair('alterado_em', TJSONNull.Create);
+
+              Res.Send<TJSONObject>(oJson).Status(200);
+            end;
         end;
     end;
 end;
@@ -369,11 +473,16 @@ begin
   THorse
     .Group
       .Prefix('api/v1')
-        .Get('/historico-orcamentos', GetAll)
-        .Get('/historico-orcamentos/:id', GetOne)
-        .Post('/historico-orcamentos', Post)
-        .Put('/historico-orcamentos/:id', Put)
-        .Delete('/historico-orcamentos/:id/delete', Delete);
+        .AddCallback(HorseJWT(JWTPassword, THorseJWTConfig.New.SessionClass(Tusuarios_claims)))
+          .Get('/historico-orcamentos', GetAll)
+        .AddCallback(HorseJWT(JWTPassword, THorseJWTConfig.New.SessionClass(Tusuarios_claims)))
+          .Get('/historico-orcamentos/:id', GetOne)
+        .AddCallback(HorseJWT(JWTPassword, THorseJWTConfig.New.SessionClass(Tusuarios_claims)))
+          .Post('/historico-orcamentos', Post)
+        .AddCallback(HorseJWT(JWTPassword, THorseJWTConfig.New.SessionClass(Tusuarios_claims)))
+          .Put('/historico-orcamentos/:id', Put)
+        .AddCallback(HorseJWT(JWTPassword, THorseJWTConfig.New.SessionClass(Tusuarios_claims)))
+          .Delete('/historico-orcamentos/:id/delete', Delete);
 end;
 
 initialization

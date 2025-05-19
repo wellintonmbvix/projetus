@@ -68,8 +68,8 @@ begin
     LClaims := Tusuarios_claims(LJWT.Claims);
 
     LClaims.Expiration := IncHour(Now, 1);
-    LClaims.id_usuario := usuario.id_usuario;
-    LClaims.id_pessoa := usuario.id_pessoa;
+    LClaims.id_usuario := usuario.id_usuario.ToString;
+    LClaims.id_pessoa := usuario.id_pessoa.ToString;
     LClaims.nome_usuario := usuario.nome_usuario;
     regras := '[';
     for var i := 0 to usuario.usuarios_regras.Count - 1 do
