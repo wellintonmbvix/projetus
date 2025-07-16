@@ -18,6 +18,9 @@ uses
   Horse.GBSwagger.Controller,
   GBSwagger.Path.Attributes,
 
+  BCrypt,
+  BCrypt.Types,
+
   uRotinas,
 
   model.contatos_emails,
@@ -25,6 +28,8 @@ uses
   model.contatos,
   model.dados_pessoais,
   model.endereco,
+  model.usuarios_regras,
+  model.usuarios,
   model.pessoa,
   model.api.sucess,
   model.api.error,
@@ -36,7 +41,9 @@ uses
   controller.dto.contatos_telefones.interfaces,
   controller.dto.contatos_telefones.interfaces.impl,
   controller.dto.contatos_emails.interfaces,
-  controller.dto.contatos_emails.interfaces.impl;
+  controller.dto.contatos_emails.interfaces.impl,
+  controller.dto.usuarios.interfaces,
+  controller.dto.usuarios.interfaces.impl;
 
 type
   [SwagPath('v1', 'Clientes')]
@@ -342,7 +349,12 @@ var
   JSONBytes: TBytes;
   JSONString: string;
   msg: String;
+  senhaHash, filter: String;
   Pessoa: Tpessoas;
+  Usuario: Tusuarios;
+  UsuarioRegra: Tusuarios_regras;
+  Usuarios: TObjectList<Tusuarios>;
+  UsuariosRegras: TObjectList<Tusuarios_regras>;
   Endereco: Tenderecos;
   DadoPessoal: Tdados_pessoais;
   Contato: Tcontatos;
@@ -363,6 +375,47 @@ begin
   oJson := Req.Body<TJSONObject>;
 
   Try
+    // Criando o Usuário
+    if (oJson.GetValue<String>('usuario.nome_usuario').IsEmpty) Or
+    (oJson.GetValue<String>('usuario.senha_usuario').IsEmpty) then
+      begin
+        oJson.AddPair('message', 'O nome e senha do usuário são campos obrigatório!');
+        Res.Send<TJSONObject>(oJson).Status(400);
+        Exit;
+      end;
+
+    senhaHash := TBCrypt.GenerateHash(oJson.GetValue<String>('usuario.senha_usuario'), 10);
+
+    var
+    IUsuario := TIUsuario.New;
+
+    filter := 'dt_del is null';
+    filter := filter + ' AND nome_usuario='+
+      QuotedStr(oJson.GetValue<String>('usuario.nome_usuario'));
+    IUsuario.Build.ListAll(filter, Usuarios, '');
+
+    if Usuarios.Count > 0 then
+      begin
+        oJson.AddPair('message', 'username already in use');
+        Res.Send<TJSONObject>(oJson).Status(400);
+        Exit;
+      end;
+
+    UsuariosRegras := TObjectList<Tusuarios_regras>.Create;
+    UsuariosRegras.Add(Tusuarios_regras.Create);
+    with UsuariosRegras.Last do
+    begin
+      id_regra := 3; // Regras: 1 - Administrador; 2 - Profissionais; 3 - Clientes;
+    end;
+
+    Usuario := Tusuarios.Create;
+    with Usuario do
+    begin
+      nome_usuario := oJson.GetValue<String>('usuario.nome_usuario');
+      senha_hash := senhaHash;
+      usuarios_regras := UsuariosRegras;
+    end;
+
     // Criando o Endereço
     Endereco := Tenderecos.Create;
     with Endereco do
@@ -427,6 +480,7 @@ begin
       .endereco(Endereco)
       .dados_pessoais(DadoPessoal)
       .contatos(Contatos)
+      .usuario(Usuario)
     .Build.Insert;
 
     oJson := TJSONObject.Create;

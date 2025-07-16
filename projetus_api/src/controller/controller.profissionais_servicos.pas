@@ -162,9 +162,9 @@ begin
     for ProfissionalServico in ProfissionaisServicos do
       begin
         oJson := TJSONObject.Create;
-        oJson.AddPair('id', ProfissionalServico.id_profissional_servico);
-        oJson.AddPair('id_profissional', ProfissionalServico.id_pessoa);
-        oJson.AddPair('id_servico', ProfissionalServico.id_servico);
+        oJson.AddPair('id', TJSONNumber.Create(ProfissionalServico.id_profissional_servico));
+        oJson.AddPair('id_profissional', TJSONNumber.Create(ProfissionalServico.id_pessoa));
+        oJson.AddPair('id_servico', TJSONNumber.Create(ProfissionalServico.id_servico));
 
         oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', ProfissionalServico.dt_inc));
         if ProfissionalServico.dt_alt.HasValue then
@@ -228,9 +228,9 @@ begin
       else
         begin
           var oJson := TJSONObject.Create;
-          oJson.AddPair('id', ProfissionalServico.id_profissional_servico);
-          oJson.AddPair('id_profissional', ProfissionalServico.id_pessoa);
-          oJson.AddPair('id_servico', ProfissionalServico.id_servico);
+          oJson.AddPair('id', TJSONNumber.Create(ProfissionalServico.id_profissional_servico));
+          oJson.AddPair('id_profissional', TJSONNumber.Create(ProfissionalServico.id_pessoa));
+          oJson.AddPair('id_servico', TJSONNumber.Create(ProfissionalServico.id_servico));
           oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', ProfissionalServico.dt_inc));
           if ProfissionalServico.dt_alt.HasValue then
             oJson.AddPair('alterado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', ProfissionalServico.dt_alt.Value))

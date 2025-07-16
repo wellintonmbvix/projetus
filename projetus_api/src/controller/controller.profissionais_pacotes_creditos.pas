@@ -175,12 +175,12 @@ begin
     for ProfissionalPacoteCredito in ProfissionaisPacotesCreditos do
       begin
         oJson := TJSONObject.Create;
-        oJson.AddPair('id', ProfissionalPacoteCredito.id_profissional_pacote_credito);
-        oJson.AddPair('id_profissional', ProfissionalPacoteCredito.id_pessoa);
+        oJson.AddPair('id', TJSONNumber.Create(ProfissionalPacoteCredito.id_profissional_pacote_credito));
+        oJson.AddPair('id_profissional', TJSONNumber.Create(ProfissionalPacoteCredito.id_pessoa));
         oJson.AddPair('profissional', ProfissionalPacoteCredito.profissional);
-        oJson.AddPair('id_pacote_credito', ProfissionalPacoteCredito.id_pacote_credito);
+        oJson.AddPair('id_pacote_credito', TJSONNumber.Create(ProfissionalPacoteCredito.id_pacote_credito));
         oJson.AddPair('pacote', ProfissionalPacoteCredito.pacote);
-        oJson.AddPair('dias_expiracao', ProfissionalPacoteCredito.dias_expirar);
+        oJson.AddPair('dias_expiracao', TJSONNumber.Create(ProfissionalPacoteCredito.dias_expirar));
         oJson.AddPair('data_validade', FormatDateTime('dd/mm/YYYY',ProfissionalPacoteCredito.data_validade));
 
         oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', ProfissionalPacoteCredito.dt_inc));
@@ -246,12 +246,12 @@ begin
       else
         begin
           var oJson := TJSONObject.Create;
-          oJson.AddPair('id', ProfissionalPacoteCredito.id_profissional_pacote_credito);
-          oJson.AddPair('id_profissional', ProfissionalPacoteCredito.id_pessoa);
+          oJson.AddPair('id', TJSONNumber.Create(ProfissionalPacoteCredito.id_profissional_pacote_credito));
+          oJson.AddPair('id_profissional', TJSONNumber.Create(ProfissionalPacoteCredito.id_pessoa));
           oJson.AddPair('profissional', ProfissionalPacoteCredito.profissional);
-          oJson.AddPair('id_pacote_credito', ProfissionalPacoteCredito.id_pacote_credito);
+          oJson.AddPair('id_pacote_credito', TJSONNumber.Create(ProfissionalPacoteCredito.id_pacote_credito));
           oJson.AddPair('pacote', ProfissionalPacoteCredito.pacote);
-          oJson.AddPair('dias_expiracao', ProfissionalPacoteCredito.dias_expirar);
+          oJson.AddPair('dias_expiracao', TJSONNumber.Create(ProfissionalPacoteCredito.dias_expirar));
           oJson.AddPair('data_validade', FormatDateTime('dd/mm/YYYY',ProfissionalPacoteCredito.data_validade));
 
           oJson.AddPair('criado_em', FormatDateTime('YYY-mm-dd hh:mm:ss.zzz', ProfissionalPacoteCredito.dt_inc));

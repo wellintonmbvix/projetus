@@ -22,6 +22,7 @@ uses
   model.service.scripts.interfaces,
   model.service.scripts.interfaces.impl,
   model.pessoa,
+  model.usuarios,
   model.dados_pessoais,
   model.contatos,
   model.endereco;
@@ -57,6 +58,9 @@ type
 
     function contatos(value: TObjectList<Tcontatos>): IPessoa; overload;
     function contatos: TObjectList<Tcontatos>; overload;
+
+    function usuario(value: Tusuarios): IPessoa; overload;
+    function usuario: Tusuarios; overload;
 
     function dt_alt(value: TDateTime): IPessoa; overload;
     function dt_alt: TDateTime; overload;
@@ -191,6 +195,17 @@ end;
 function TIPessoa.tipo: String;
 begin
   Result := FEntity.tipo;
+end;
+
+function TIPessoa.usuario: Tusuarios;
+begin
+  Result := FEntity.usuario;
+end;
+
+function TIPessoa.usuario(value: Tusuarios): IPessoa;
+begin
+  Result := Self;
+  FEntity.usuario := value;
 end;
 
 function TIPessoa.suspenso(value: Boolean): IPessoa;

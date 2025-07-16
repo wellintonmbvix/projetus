@@ -13,6 +13,7 @@ uses
   model.endereco,
   model.contatos,
   model.dados_pessoais,
+  model.usuarios,
 
   // ormbr
   ormbr.types.blob,
@@ -46,6 +47,7 @@ type
     Fendereco: Tenderecos;
     Fcontatos: TObjectList<Tcontatos>;
     Fdados_pessoais: Tdados_pessoais;
+    Fusuario: Tusuarios;
   public
     constructor Create;
     destructor Destroy; override;
@@ -115,6 +117,13 @@ type
                      TCascadeAction.CascadeUpdate,
                      TCascadeAction.CascadeDelete])]
     property dados_pessoais: Tdados_pessoais read Fdados_pessoais write Fdados_pessoais;
+
+    [Association(TMultiplicity.OneToOne, 'id_pessoa', 'usuarios', 'id_pessoa')]
+    [CascadeActions([TCascadeAction.CascadeAutoInc,
+                     TCascadeAction.CascadeInsert,
+                     TCascadeAction.CascadeUpdate,
+                     TCascadeAction.CascadeDelete])]
+    property usuario: Tusuarios read Fusuario write Fusuario;
   end;
 
 implementation
@@ -126,6 +135,7 @@ begin
   Fendereco := Tenderecos.Create;
   Fcontatos := TObjectList<Tcontatos>.Create;
   Fdados_pessoais := Tdados_pessoais.Create;
+  Fusuario := Tusuarios.Create;
 end;
 
 destructor Tpessoas.Destroy;
@@ -133,6 +143,7 @@ begin
   FreeAndNil(Fendereco);
   FreeAndNil(Fcontatos);
   FreeAndNil(Fdados_pessoais);
+  FreeAndNil(Fusuario);
   inherited;
 end;
 

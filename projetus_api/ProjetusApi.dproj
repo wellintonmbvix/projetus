@@ -166,7 +166,6 @@
         <DCCReference Include="src\controller\dto\controller.dto.profissionais_servicos.interfaces.pas"/>
         <DCCReference Include="src\controller\dto\implementation\controller.dto.profissionais_servicos.interfaces.impl.pas"/>
         <DCCReference Include="src\controller\controller.profissionais_servicos.pas"/>
-        <DCCReference Include="src\controller\controller.nummus.pas"/>
         <DCCReference Include="src\controller\dto\controller.dto.historico_creditos.interfaces.pas"/>
         <DCCReference Include="src\controller\dto\implementation\controller.dto.historico_creditos.interfaces.impl.pas"/>
         <DCCReference Include="src\controller\controller.historico_creditos.pas"/>
@@ -221,12 +220,7 @@
                 <DeployFile LocalName="$(BDS)\Redist\iossimulator\libpcre.dylib" Class="DependencyModule"/>
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule"/>
                 <DeployFile LocalName=".bin\Win32\Debug\ProjetusApi.exe" Configuration="Debug" Class="ProjectOutput"/>
-                <DeployFile LocalName=".bin\Win32\Debug\ProjetusApi.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>ProjetusApi.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
+                <DeployFile LocalName=".bin\Win32\Debug\ProjetusApi.exe" Configuration="Debug" Class="ProjectOutput"/>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">
                         <Operation>1</Operation>

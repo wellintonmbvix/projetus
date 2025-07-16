@@ -9,6 +9,7 @@ uses
   model.endereco,
   model.dados_pessoais,
   model.contatos,
+  model.usuarios,
 
   //** ORMBr
   ormbr.types.blob,
@@ -39,6 +40,9 @@ type
 
     function contatos(value: TObjectList<Tcontatos>): IPessoa; overload;
     function contatos: TObjectList<Tcontatos>; overload;
+
+    function usuario(value: Tusuarios): IPessoa; overload;
+    function usuario: Tusuarios; overload;
 
     function dt_alt(value: TDateTime): IPessoa; overload;
     function dt_alt: TDateTime; overload;
