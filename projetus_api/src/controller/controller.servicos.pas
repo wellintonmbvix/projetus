@@ -4,6 +4,7 @@ interface
 
 uses
   Horse,
+  Horse.JWT,
   Horse.Commons,
   System.Classes,
   System.SysUtils,
@@ -17,8 +18,6 @@ uses
   Horse.GBSwagger.Register,
   Horse.GBSwagger.Controller,
   GBSwagger.Path.Attributes,
-
-  uRotinas,
 
   model.servicos,
   model.api.message,

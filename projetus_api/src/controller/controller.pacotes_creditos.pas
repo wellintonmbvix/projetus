@@ -18,8 +18,6 @@ uses
   Horse.GBSwagger.Controller,
   GBSwagger.Path.Attributes,
 
-  uRotinas,
-
   controller.dto.pacotes_creditos.interfaces,
   controller.dto.pacotes_creditos.interfaces.impl,
 

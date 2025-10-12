@@ -15,6 +15,7 @@ uses
   Horse.CORS,
   Horse.Jhonson,
   Horse.GBSwagger,
+  Horse.JWT,
   System.JSON,
   model.resource.interfaces in 'src\model\resource\model.resource.interfaces.pas',
   model.resource.impl.configuration in 'src\model\resource\impl\model.resource.impl.configuration.pas',
@@ -47,7 +48,6 @@ uses
   controller.dto.contatos.interfaces.impl in 'src\controller\dto\implementation\controller.dto.contatos.interfaces.impl.pas',
   controller.dto.contatos_telefones.interfaces in 'src\controller\dto\controller.dto.contatos_telefones.interfaces.pas',
   controller.dto.contatos_telefones.interfaces.impl in 'src\controller\dto\implementation\controller.dto.contatos_telefones.interfaces.impl.pas',
-  uRotinas in '..\rotinas\uRotinas.pas',
   controller.dto.contatos_emails.interfaces in 'src\controller\dto\controller.dto.contatos_emails.interfaces.pas',
   controller.dto.contatos_emails.interfaces.impl in 'src\controller\dto\implementation\controller.dto.contatos_emails.interfaces.impl.pas',
   model.service.scripts.interfaces in 'src\model\service\model.service.scripts.interfaces.pas',
@@ -81,7 +81,8 @@ uses
   controller.dto.regras.interfaces in 'src\controller\dto\controller.dto.regras.interfaces.pas',
   controller.dto.regras.interfaces.impl in 'src\controller\dto\implementation\controller.dto.regras.interfaces.impl.pas',
   controller.usuarios in 'src\controller\controller.usuarios.pas',
-  controller.login in 'src\controller\controller.login.pas';
+  controller.login in 'src\controller\controller.login.pas',
+  model.usuario.claims in 'src\model\entity\model.usuario.claims.pas';
 
 begin
 {$IFDEF MSWINDOWS}
@@ -98,9 +99,15 @@ begin
 
   // Middlewares
   THorse
-        .Use(HorseSwagger(Format('%s/swagger/doc/html', ['v1']),Format('%s/swagger/doc/json', ['v1'])))
+        .Use(HorseSwagger(Format('%s/swagger/doc/html', ['api/v1']),Format('%s/swagger/doc/json', ['api/v1'])))
         .Use(CORS)
-        .Use(Jhonson('UTF-8'));
+        .Use(Jhonson('UTF-8'))
+        .Use(HorseJWT('SuaSenhaMaisFraca@2025',
+          THorseJWTConfig.New.SkipRoutes(['/api/v1/login',
+                                          '/api/v1/profissionais',
+                                          '/api/v1/clientes',
+                                          '/api/v1/swagger/doc/html',
+                                          '/api/v1/swagger/doc/json'])));
 
   // Controllers
   TControllerCliente.Registry;
@@ -114,7 +121,6 @@ begin
   TControllerHistoricoOrcamentos.Registry;
   TControllerUsuarios.Registry;
   TControllerLogin.Registry;
-//  TControllerNummus.Registry;
 
   THorse.Host := '127.0.0.1';
   THorse.Listen(3000,

@@ -5,6 +5,7 @@ interface
 uses
   Horse,
   Horse.Commons,
+  Horse.Jhonson,
   System.Classes,
   System.SysUtils,
   System.Generics.Collections,
@@ -13,6 +14,9 @@ uses
   System.Math,
   Data.DB,
   DBClient,
+  DateUtils,
+  JOSE.Core.JWT,
+  JOSE.Core.Builder,
 
   BCrypt,
   BCrypt.Types,
@@ -23,6 +27,7 @@ uses
 
   model.api.message,
   model.usuarios,
+  model.usuario.claims,
 
   controller.dto.usuarios.interfaces,
   controller.dto.usuarios.interfaces.impl;
@@ -39,6 +44,9 @@ type
     class procedure Post(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 
+const
+  C_SECRET_JWT = 'SuaSenhaMaisFraca@2025';
+
 implementation
 
 { TControllerLogin }
@@ -50,6 +58,11 @@ var
   passwordRehashNeeded: Boolean;
   Usuarios: TObjectList<Tusuarios>;
   filter: String;
+  LToken: TJWT;
+  LExpiration: TDateTime;
+  LCompactToken: String;
+  LIdUsuario: Integer;
+  LClaims: TUsuarioClaims;
 begin
   if Req.Body.IsEmpty then
     raise Exception.Create('user data not found');
@@ -89,9 +102,24 @@ begin
         end
       else
         begin
-          oJson.SetPairs(TList<TJSONPair>.Create);
-          oJson.AddPair('mesage', 'user is valid');
-          Res.Send<TJSONObject>(oJson).Status(200);
+          try
+            LToken := TJWT.Create(TUsuarioClaims);
+            LClaims := TUsuarioClaims(LToken.Claims);
+            LClaims.Issuer := 'Wellinton Mattos Brozeghini';
+            LClaims.id_usuario := Usuarios.Last.id_usuario;
+            LClaims.nome_usuario := Usuarios.Last.nome_usuario;
+            LClaims.id_regra := Usuarios.Last.usuarios_regras.Last.id_regra;
+            LExpiration := IncMinute(Now, 60);
+            LClaims.Expiration := LExpiration;
+            LCompactToken := TJOSE.SHA256CompactToken(C_SECRET_JWT, LToken);
+
+            oJson.SetPairs(TList<TJSONPair>.Create);
+            oJson.AddPair('Expiration', FormatDateTime('DD/MM/YYYY hh:mm:ss.nnn', LExpiration));
+            oJson.AddPair('Token', LCompactToken);
+            Res.Send<TJSONObject>(oJson).Status(200);
+          finally
+           LToken.Free;
+          end;
         end;
 
     end;

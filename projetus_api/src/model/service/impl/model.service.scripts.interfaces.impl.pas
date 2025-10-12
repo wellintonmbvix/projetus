@@ -19,7 +19,9 @@ uses
   firedac.Comp.Client,
   firedac.Comp.DataSet,
   firedac.UI.Intf,
+  {$IFDEF Defined(HAS_VCL)}
   firedac.VCLUI.Wait,
+  {$ENDIF}
   firedac.Comp.UI,
   firedac.Stan.Param,
 

@@ -5,6 +5,7 @@ interface
 uses
   System.SysUtils,
   System.IniFiles,
+   System.IOUtils,
   model.resource.interfaces;
 
 type
@@ -133,11 +134,17 @@ var
   fileIni: String;
 begin
 
-{$IFDEF DEBUG}
-  fileIni := ExtractFilePath(ParamStr(0)) + '../../../config.ini';
+{$IFDEF MSWINDOWS}
+  {$IFDEF DEBUG}
+    fileIni := TPath.Combine(ExtractFilePath(ParamStr(0)), '../../../config.ini');  // Windows, DEBUG: dois níveis acima
+  {$ELSE}
+    fileIni := TPath.Combine(ExtractFilePath(ParamStr(0)), 'config.ini');  // Windows, RELEASE: mesmo diretório da aplicação
+  {$ENDIF}
 {$ELSE}
-  fileIni := ExtractFilePath(ParamStr(0)) + '/config.ini';
+  // Para Linux (ou qualquer outro SO não Windows)
+  fileIni := TPath.Combine(ExtractFilePath(ParamStr(0)), 'config.ini');  // Linux: mesmo diretório da aplicação
 {$ENDIF}
+
   if not FileExists(fileIni) then
   begin
     raise Exception.Create('Arquivo de Configuração não encontrado' + #13 +

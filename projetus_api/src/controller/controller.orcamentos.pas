@@ -18,8 +18,6 @@ uses
   Horse.GBSwagger.Controller,
   GBSwagger.Path.Attributes,
 
-  uRotinas,
-
   model.orcamentos,
   model.api.message,
   controller.dto.orcamentos.interfaces,

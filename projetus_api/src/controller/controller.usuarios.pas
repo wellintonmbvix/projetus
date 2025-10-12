@@ -21,8 +21,6 @@ uses
   Horse.GBSwagger.Controller,
   GBSwagger.Path.Attributes,
 
-  uRotinas,
-
   model.usuarios,
   model.usuarios_regras,
   model.api.message,

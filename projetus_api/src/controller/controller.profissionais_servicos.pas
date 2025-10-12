@@ -18,8 +18,6 @@ uses
   Horse.GBSwagger.Controller,
   GBSwagger.Path.Attributes,
 
-  uRotinas,
-
   model.profissionais_servicos,
   model.api.message,
   controller.dto.profissionais_servicos.interfaces,

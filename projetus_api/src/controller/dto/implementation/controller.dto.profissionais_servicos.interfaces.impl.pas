@@ -8,8 +8,6 @@ uses
   Data.DB,
   DBClient,
 
-  uRotinas,
-
   controller.dto.profissionais_servicos.interfaces,
 
   ormbr.objects.helper,

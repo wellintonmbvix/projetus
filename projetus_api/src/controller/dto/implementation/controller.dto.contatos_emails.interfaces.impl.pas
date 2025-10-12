@@ -8,8 +8,6 @@ uses
   Data.DB,
   DBClient,
 
-  uRotinas,
-
   controller.dto.contatos_emails.interfaces,
 
   ormbr.objects.helper,

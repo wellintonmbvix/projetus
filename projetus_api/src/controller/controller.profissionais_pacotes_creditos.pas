@@ -19,8 +19,6 @@ uses
   Horse.GBSwagger.Controller,
   GBSwagger.Path.Attributes,
 
-  uRotinas,
-
   model.pacotes_creditos,
   model.profissionais_pacotes_creditos,
   model.api.message,

@@ -21,8 +21,6 @@ uses
   BCrypt,
   BCrypt.Types,
 
-  uRotinas,
-
   model.contatos_emails,
   model.contatos_telefones,
   model.contatos,

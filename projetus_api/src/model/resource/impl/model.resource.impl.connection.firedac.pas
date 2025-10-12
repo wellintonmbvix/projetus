@@ -28,7 +28,9 @@ uses
 
   firedac.DatS,
 
+  {$IF Defined(HAS_VCL)}
   firedac.VCLUI.Wait,
+  {$ENDIF}
 
   firedac.Comp.Client,
   firedac.Comp.UI,
