@@ -109,6 +109,7 @@ begin
             LClaims.id_usuario := Usuarios.Last.id_usuario;
             LClaims.nome_usuario := Usuarios.Last.nome_usuario;
             LClaims.id_regra := Usuarios.Last.usuarios_regras.Last.id_regra;
+            LClaims.nome_regra := Usuarios.Last.usuarios_regras.Last.regra;
             LExpiration := IncMinute(Now, 60);
             LClaims.Expiration := LExpiration;
             LCompactToken := TJOSE.SHA256CompactToken(C_SECRET_JWT, LToken);

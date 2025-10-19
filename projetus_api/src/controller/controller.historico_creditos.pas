@@ -20,6 +20,9 @@ uses
 
   model.historico_creditos,
   model.api.message,
+
+  middleware.authmiddleware,
+
   controller.dto.historico_creditos.interfaces,
   controller.dto.historico_creditos.interfaces.impl;
 
@@ -128,7 +131,7 @@ var
   aJson: TJSONArray;
   oJsonResult,
   oJson: TJSONObject;
-  nome,page,perPage,filter,records: String;
+  nome,page,perPage,filter,joinString,records: String;
   totalPages: Integer;
 begin
   Try
@@ -138,7 +141,9 @@ begin
     page := Req.Query['page'];
     perPage := Req.Query['perPage'];
 
-    filter := 'historico_creditos.dt_del is null AND tipo_pessoa="P"';
+    joinString := 'LEFT JOIN pessoas ON historico_creditos.id_pessoa = pessoas.id_pessoa';
+
+    filter := 'historico_creditos.dt_del is null AND pessoas.tipo=''P''';
     if nome <> EmptyStr then
       filter := filter + ' AND pessoa LIKE '+QuotedStr('%'+nome+'%');
 
@@ -149,7 +154,7 @@ begin
       perPage := '10';
 
     var registros: Integer;
-    IHistoricoCreditos.Build.GetRecordsNumber('historico_creditos', filter, registros);
+    IHistoricoCreditos.Build.GetRecordsNumber('historico_creditos', filter, registros, joinString);
     totalPages := Ceil(registros / perPage.ToInteger());
     records := IntToStr(registros);
 
@@ -192,7 +197,7 @@ begin
     oJsonResult.AddPair('records', records);
     oJsonResult.AddPair('page', page);
     oJsonResult.AddPair('totalPages', TJSONNumber.Create(totalPages));
-    Res.Send<TJSONObject>(oJsonResult);
+    Res.Send<TJSONObject>(oJsonResult).Status(200);
   Except
     on E: Exception do
       begin
@@ -372,12 +377,13 @@ class procedure TControllerHistoricoCreditos.Registry;
 begin
   THorse
     .Group
-      .Prefix('api/v1')
-        .Get('/historico-creditos', GetAll)
-        .Get('/historico-creditos/:id', GetOne)
-        .Post('/historico-creditos', Post)
-        .Put('/historico-creditos/:id', Put)
-        .Delete('/historico-creditos/:id/delete', Delete);
+      .Prefix('api/v1/historico-creditos')
+        .Use(MiddlewarePorRegras(['administrador','profissional']))
+        .Get('/', GetAll)
+        .Get('/:id', GetOne)
+        .Post('/', Post)
+        .Put('/:id', Put)
+        .Delete('/:id/delete', Delete);
 end;
 
 initialization

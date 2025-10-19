@@ -16,6 +16,7 @@ uses
   Horse.Jhonson,
   Horse.GBSwagger,
   Horse.JWT,
+  JOSE.Core.JWT,
   System.JSON,
   model.resource.interfaces in 'src\model\resource\model.resource.interfaces.pas',
   model.resource.impl.configuration in 'src\model\resource\impl\model.resource.impl.configuration.pas',
@@ -82,7 +83,8 @@ uses
   controller.dto.regras.interfaces.impl in 'src\controller\dto\implementation\controller.dto.regras.interfaces.impl.pas',
   controller.usuarios in 'src\controller\controller.usuarios.pas',
   controller.login in 'src\controller\controller.login.pas',
-  model.usuario.claims in 'src\model\entity\model.usuario.claims.pas';
+  model.usuario.claims in 'src\model\entity\model.usuario.claims.pas',
+  middleware.authmiddleware in 'src\middleware\middleware.authmiddleware.pas';
 
 begin
 {$IFDEF MSWINDOWS}

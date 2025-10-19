@@ -30,6 +30,7 @@ uses
   model.usuarios,
   model.pessoa,
   model.api.message,
+
   controller.dto.pessoa.interfaces,
   controller.dto.pessoa.interfaces.impl,
   controller.dto.contatos.interfaces,

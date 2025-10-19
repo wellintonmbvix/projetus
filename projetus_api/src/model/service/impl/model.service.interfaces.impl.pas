@@ -50,7 +50,7 @@ type
     function Delete: IService<T>;
     function This: T;
     function GetRecordsNumber(aTableName: String; aFilter: String;
-      var nRecords: Integer): IService<T>;
+      var nRecords: Integer; stringJoin: String = ''): IService<T>;
     function GetId(aFilter: String; var aList: TObjectList<T>): IService<T>;
   end;
 
@@ -159,8 +159,8 @@ begin
     FParent := aList.First;
 end;
 
-function TServiceORMBr<T>.GetRecordsNumber(aTableName, aFilter: String;
-  var nRecords: Integer): IService<T>;
+function TServiceORMBr<T>.GetRecordsNumber(aTableName: String; aFilter: String;
+      var nRecords: Integer; stringJoin: String = ''): IService<T>;
 var
   vQry : TFDQuery;
 begin
@@ -171,6 +171,10 @@ begin
       Begin
         Connection := TFDConnection(FConnection.Connect);
         SQL.Add('SELECT COUNT(*) FROM '+aTableName);
+
+        if not stringJoin.Trim().IsEmpty then
+          SQL.Add(stringJoin);
+
         if aFilter.Length > 0 then
           SQL.Add('WHERE '+aFilter);
         Open;

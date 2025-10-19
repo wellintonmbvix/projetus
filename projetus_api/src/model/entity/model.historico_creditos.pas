@@ -65,7 +65,7 @@ type
     [Dictionary('pessoa', '')]
     property pessoa: nullable<String> read Fpessoa write Fpessoa;
 
-    [SwagProp('pessoa', '', True, False)]
+    [SwagProp('tipo_pessoa', '', False, True)]
     [Restrictions([TRestriction.NoInsert, TRestriction.NoUpdate])]
     [Column('tipo_pessoa', ftString, 1)]
     [JoinColumn('id_pessoa', 'pessoas', 'id_pessoa', 'tipo',

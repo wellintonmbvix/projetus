@@ -20,6 +20,9 @@ uses
 
   model.historico_orcamentos,
   model.api.message,
+
+  middleware.authmiddleware,
+
   controller.dto.historico_orcamentos.interfaces,
   controller.dto.historico_orcamentos.interfaces.impl;
 
@@ -366,12 +369,13 @@ class procedure TControllerHistoricoOrcamentos.Registry;
 begin
   THorse
     .Group
-      .Prefix('api/v1')
-        .Get('/historico-orcamentos', GetAll)
-        .Get('/historico-orcamentos/:id', GetOne)
-        .Post('/historico-orcamentos', Post)
-        .Put('/historico-orcamentos/:id', Put)
-        .Delete('/historico-orcamentos/:id/delete', Delete);
+      .Prefix('api/v1/historico-orcamentos')
+        .Use(MiddlewarePorRegras(['administrador','profissional']))
+        .Get('/', GetAll)
+        .Get('/:id', GetOne)
+        .Post('/', Post)
+        .Put('/:id', Put)
+        .Delete('/:id/delete', Delete);
 end;
 
 initialization
