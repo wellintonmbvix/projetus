@@ -84,7 +84,8 @@ uses
   controller.usuarios in 'src\controller\controller.usuarios.pas',
   controller.login in 'src\controller\controller.login.pas',
   model.usuario.claims in 'src\model\entity\model.usuario.claims.pas',
-  middleware.authmiddleware in 'src\middleware\middleware.authmiddleware.pas';
+  middleware.authmiddleware in 'src\middleware\middleware.authmiddleware.pas',
+  middleware.errorHandlerMiddleware in 'src\middleware\middleware.errorHandlerMiddleware.pas';
 
 begin
 {$IFDEF MSWINDOWS}
@@ -101,6 +102,7 @@ begin
 
   // Middlewares
   THorse
+        .Use(ErrorHandlerMiddleware)
         .Use(HorseSwagger(Format('%s/swagger/doc/html', ['api/v1']),Format('%s/swagger/doc/json', ['api/v1'])))
         .Use(CORS)
         .Use(Jhonson('UTF-8'))

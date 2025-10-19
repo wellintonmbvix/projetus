@@ -225,6 +225,7 @@
         <DCCReference Include="src\controller\controller.login.pas"/>
         <DCCReference Include="src\model\entity\model.usuario.claims.pas"/>
         <DCCReference Include="src\middleware\middleware.authmiddleware.pas"/>
+        <DCCReference Include="src\middleware\middleware.errorHandlerMiddleware.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
