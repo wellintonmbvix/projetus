@@ -24,6 +24,9 @@ uses
   model.usuarios,
   model.usuarios_regras,
   model.api.message,
+
+  middleware.authmiddleware,
+
   controller.dto.usuarios.interfaces,
   controller.dto.usuarios.interfaces.impl;
 
@@ -465,12 +468,13 @@ class procedure TControllerUsuarios.Registry;
 begin
   THorse
     .Group
-      .Prefix('api/v1')
-        .Get('/usuarios', GetAll)
-        .Get('/usuarios/:id', GetOne)
-        .Post('/usuarios', Post)
-        .Put('/usuarios/:id', Put)
-        .Delete('/usuarios/:id/delete', Delete);
+      .Prefix('api/v1/usuarios')
+        .Get('/', GetAll)
+        .Get('/:id', GetOne)
+        .Post('/', Post)
+        .Put('/:id', Put)
+        .Use(MiddlewarePorRegras(['administrador']))
+        .Delete('/:id/delete', Delete);
 end;
 
 initialization

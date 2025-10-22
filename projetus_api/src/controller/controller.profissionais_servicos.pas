@@ -20,6 +20,9 @@ uses
 
   model.profissionais_servicos,
   model.api.message,
+
+  middleware.authmiddleware,
+
   controller.dto.profissionais_servicos.interfaces,
   controller.dto.profissionais_servicos.interfaces.impl;
 
@@ -338,12 +341,13 @@ class procedure TControllerProfissionaisServicos.Registry;
 begin
   THorse
     .Group
-      .Prefix('api/v1')
-        .Get('/profissionais-servicos', GetAll)
-        .Get('/profissionais-servicos/:id', GetOne)
-        .Post('/profissionais-servicos', Post)
-        .Put('/profissionais-servicos/:id', Put)
-        .Delete('/profissionais-servicos/:id/delete', Delete);
+      .Prefix('api/v1/profissionais-servicos')
+        .Use(MiddlewarePorRegras(['administrador', 'profissional']))
+        .Get('/', GetAll)
+        .Get('/:id', GetOne)
+        .Post('/', Post)
+        .Put('/:id', Put)
+        .Delete('/:id/delete', Delete);
 end;
 
 initialization

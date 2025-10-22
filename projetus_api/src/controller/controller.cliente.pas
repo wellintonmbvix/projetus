@@ -32,6 +32,9 @@ uses
   model.api.sucess,
   model.api.error,
   model.api.message,
+
+  middleware.authmiddleware,
+
   controller.dto.pessoa.interfaces,
   controller.dto.pessoa.interfaces.impl,
   controller.dto.contatos.interfaces,
@@ -98,12 +101,12 @@ class procedure TControllerCliente.Registry;
 begin
   THorse
     .Group
-      .Prefix('api/v1')
-        .Get('/clientes', GetAll)
-        .Get('/clientes/:id', GetOne)
-        .Post('/clientes', Post)
-        .Put('/clientes/:id', Put)
-        .Delete('/clientes/:id/delete', Delete);
+      .Prefix('api/v1/clientes')
+        .Get('/', GetAll)
+        .Get('/:id', GetOne)
+        .Post('/', Post)
+        .Put('/:id', Put)
+        .Delete('/:id/delete', Delete);
 end;
 
 class procedure TControllerCliente.GetAll(Req: THorseRequest; Res: THorseResponse; Next: TProc);

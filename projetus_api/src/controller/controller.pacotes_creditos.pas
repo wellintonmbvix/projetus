@@ -21,6 +21,8 @@ uses
   controller.dto.pacotes_creditos.interfaces,
   controller.dto.pacotes_creditos.interfaces.impl,
 
+  middleware.authmiddleware,
+
   model.pacotes_creditos,
   model.api.message;
 
@@ -361,12 +363,13 @@ class procedure TControllerPacotesCreditos.Registry;
 begin
   THorse
     .Group
-      .Prefix('api/v1')
-        .Get('/pacotes-creditos', GetAll)
-        .Get('/pacotes-creditos/:id', GetOne)
-        .Post('/pacotes-creditos', Post)
-        .Put('/pacotes-creditos/:id', Put)
-        .Delete('/pacotes-creditos/:id/delete', Delete);
+      .Prefix('api/v1/pacotes-creditos')
+        .Use(MiddlewarePorRegras(['administrador']))
+        .Get('/', GetAll)
+        .Get('/:id', GetOne)
+        .Post('/', Post)
+        .Put('/:id', Put)
+        .Delete('/:id/delete', Delete);
 end;
 
 initialization

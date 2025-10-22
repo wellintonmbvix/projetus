@@ -21,6 +21,9 @@ uses
 
   model.servicos,
   model.api.message,
+
+  middleware.authmiddleware,
+
   controller.dto.servicos.interfaces,
   controller.dto.servicos.interfaces.impl;
 
@@ -335,12 +338,13 @@ class procedure TControllerServicos.Registry;
 begin
   THorse
     .Group
-      .Prefix('api/v1')
-        .Get('/servicos', GetAll)
-        .Get('/servicos/:id', GetOne)
-        .Post('/servicos', Post)
-        .Put('/servicos/:id', Put)
-        .Delete('/servicos/:id/delete', Delete);
+      .Prefix('api/v1/servicos')
+        .Get('/', GetAll)
+        .Use(MiddlewarePorRegras(['administrador']))
+        .Get('/:id', GetOne)
+        .Post('/', Post)
+        .Put('/:id', Put)
+        .Delete('/:id/delete', Delete);
 end;
 
 initialization

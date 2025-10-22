@@ -22,6 +22,9 @@ uses
   model.pacotes_creditos,
   model.profissionais_pacotes_creditos,
   model.api.message,
+
+  middleware.authmiddleware,
+
   controller.dto.pacotes_creditos.interfaces,
   controller.dto.pacotes_creditos.interfaces.impl,
   controller.dto.profissionais_pacotes_creditos.interfaces,
@@ -374,12 +377,13 @@ class procedure TControllerProfissionalPacoteCredito.Registry;
 begin
   THorse
     .Group
-      .Prefix('api/v1')
-        .Get('/profissionais-pacotes-creditos', GetAll)
-        .Get('/profissionais-pacotes-creditos/:id', GetOne)
-        .Post('/profissionais-pacotes-creditos', Post)
-        .Put('/profissionais-pacotes-creditos/:id', Put)
-        .Delete('/profissionais-pacotes-creditos/:id/delete', Delete);
+      .Prefix('api/v1/profissionais-pacotes-creditos')
+        .Use(MiddlewarePorRegras(['administrador']))
+        .Get('/', GetAll)
+        .Get('/:id', GetOne)
+        .Post('/', Post)
+        .Put('/:id', Put)
+        .Delete('/:id/delete', Delete);
 end;
 
 initialization

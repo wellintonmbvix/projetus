@@ -370,11 +370,11 @@ begin
   THorse
     .Group
       .Prefix('api/v1/historico-orcamentos')
-        .Use(MiddlewarePorRegras(['administrador','profissional']))
         .Get('/', GetAll)
         .Get('/:id', GetOne)
-        .Post('/', Post)
         .Put('/:id', Put)
+        .Use(MiddlewarePorRegras(['administrador', 'cliente']))
+        .Post('/', Post)
         .Delete('/:id/delete', Delete);
 end;
 

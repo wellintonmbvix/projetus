@@ -752,12 +752,12 @@ class procedure TControllerProfissional.Registry;
 begin
   THorse
     .Group
-      .Prefix('api/v1')
-        .Get('/profissionais', GetAll)
-        .Get('/profissionais/:id', GetOne)
-        .Post('/profissionais', Post)
-        .Put('/profissionais/:id', Put)
-        .Delete('/profissionais/:id/delete', Delete);
+      .Prefix('api/v1/profissionais')
+        .Get('/', GetAll)
+        .Get('/:id', GetOne)
+        .Post('/', Post)
+        .Put('/:id', Put)
+        .Delete('/:id/delete', Delete);
 end;
 
 initialization

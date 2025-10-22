@@ -378,10 +378,11 @@ begin
   THorse
     .Group
       .Prefix('api/v1/historico-creditos')
-        .Use(MiddlewarePorRegras(['administrador','profissional']))
+        .Use(MiddlewarePorRegras(['administrador', 'profissional']))
         .Get('/', GetAll)
         .Get('/:id', GetOne)
         .Post('/', Post)
+        .Use(MiddlewarePorRegras(['administrador']))
         .Put('/:id', Put)
         .Delete('/:id/delete', Delete);
 end;

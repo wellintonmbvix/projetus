@@ -18,6 +18,8 @@ uses
   Horse.GBSwagger.Controller,
   GBSwagger.Path.Attributes,
 
+  middleware.authmiddleware,
+
   model.orcamentos,
   model.api.message,
   controller.dto.orcamentos.interfaces,
@@ -361,12 +363,13 @@ class procedure TControllerOrcamentos.Registry;
 begin
   THorse
     .Group
-      .Prefix('api/v1')
-        .Get('/orcamentos', GetAll)
-        .Get('/orcamentos/:id', GetOne)
-        .Post('/orcamentos', Post)
-        .Put('/orcamentos/:id', Put)
-        .Delete('/orcamentos/:id/delete', Delete);
+      .Prefix('api/v1/orcamentos')
+        .Use(MiddlewarePorRegras(['administrador', 'cliente']))
+        .Get('/', GetAll)
+        .Get('/:id', GetOne)
+        .Post('/', Post)
+        .Put('/:id', Put)
+        .Delete('/:id/delete', Delete);
 end;
 
 initialization
