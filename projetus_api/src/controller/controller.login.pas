@@ -97,7 +97,7 @@ begin
       if not isPasswordValid then // Se senha é ou não válida
         begin
           oJson.SetPairs(TList<TJSONPair>.Create);
-          oJson.AddPair('mesage', 'invalid username or password');
+          oJson.AddPair('message', 'invalid username or password');
           Res.Send<TJSONObject>(oJson).Status(400);
         end
       else

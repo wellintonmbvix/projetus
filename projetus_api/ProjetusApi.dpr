@@ -85,7 +85,13 @@ uses
   controller.login in 'src\controller\controller.login.pas',
   model.usuario.claims in 'src\model\entity\model.usuario.claims.pas',
   middleware.authmiddleware in 'src\middleware\middleware.authmiddleware.pas',
-  middleware.errorHandlerMiddleware in 'src\middleware\middleware.errorHandlerMiddleware.pas';
+  middleware.errorHandlerMiddleware in 'src\middleware\middleware.errorHandlerMiddleware.pas',
+  model.estados in 'src\model\entity\model.estados.pas',
+  model.municipios in 'src\model\entity\model.municipios.pas',
+  controller.dto.estados.interfaces in 'src\controller\dto\controller.dto.estados.interfaces.pas',
+  controller.dto.municipios.interfaces in 'src\controller\dto\controller.dto.municipios.interfaces.pas',
+  controller.dto.estados.interfaces.impl in 'src\controller\dto\implementation\controller.dto.estados.interfaces.impl.pas',
+  controller.recursos in 'src\controller\controller.recursos.pas';
 
 begin
 {$IFDEF MSWINDOWS}
@@ -125,6 +131,7 @@ begin
   TControllerHistoricoOrcamentos.Registry;
   TControllerUsuarios.Registry;
   TControllerLogin.Registry;
+  TControllerRecursos.Registry;
 
   THorse.Host := '127.0.0.1';
   THorse.Listen(3000,
