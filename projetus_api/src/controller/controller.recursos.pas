@@ -54,15 +54,19 @@ var
   aJson: TJSONArray;
   oJsonResult,
   oJson: TJSONObject;
-  nome,sigla,filter,records: String;
+  nome,sigla,id,filter,records: String;
 begin
   Try
     var
     IEstados := TIEstados.New;
     nome := Req.Query['nome'];
     sigla := Req.Query['sigla'];
+    id := Req.Query['id'];
 
     filter := '1=1';
+    if id <> EmptyStr then
+      filter := filter + ' AND id_estado = ' + id;
+
     if nome <> EmptyStr then
       filter := filter + ' AND nome LIKE '+QuotedStr('%'+nome+'%');
 
