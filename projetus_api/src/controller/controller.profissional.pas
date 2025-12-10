@@ -521,9 +521,12 @@ begin
     DadoPessoal := Tdados_pessoais.Create;
     with DadoPessoal do
     begin
-      cpf := oJson.GetValue<String>('dados_pessoais.cpf');
-      identidade := oJson.GetValue<String>('dados_pessoais.identidade');
-      data_nascimento := StrToDate(oJson.GetValue<String>('dados_pessoais.data_nascimento'));
+      if oJson.GetValue<String>('dados_pessoais.cpf').Trim.Length > 0 then
+        cpf := oJson.GetValue<String>('dados_pessoais.cpf');
+      if oJson.GetValue<String>('dados_pessoais.identidade').Trim.Length > 0 then
+        identidade := oJson.GetValue<String>('dados_pessoais.identidade');
+      if oJson.GetValue<String>('dados_pessoais.data_nascimento').Trim.Length > 0 then
+        data_nascimento := StrToDate(oJson.GetValue<String>('dados_pessoais.data_nascimento'));
     end;
 
     contatosArray := oJson.GetValue<TJSONArray>('contatos');
@@ -658,9 +661,12 @@ else
         with DadoPessoal do
         begin
           id_dado_pessoal := oJson.GetValue<Integer>('dados_pessoais.id');
-          cpf := oJson.GetValue<String>('dados_pessoais.cpf');
-          identidade := oJson.GetValue<String>('dados_pessoais.identidade');
-          data_nascimento := StrToDate(oJson.GetValue<String>('dados_pessoais.data_nascimento'));
+          if oJson.GetValue<String>('dados_pessoais.cpf').Trim.Length > 0 then
+            cpf := oJson.GetValue<String>('dados_pessoais.cpf');
+          if oJson.GetValue<String>('dados_pessoais.identidade').Trim.Length > 0 then
+            identidade := oJson.GetValue<String>('dados_pessoais.identidade');
+          if oJson.GetValue<String>('dados_pessoais.data_nascimento').Trim.Length > 0 then
+            data_nascimento := StrToDate(oJson.GetValue<String>('dados_pessoais.data_nascimento'));
         end;
 
         // Criando os Contatos

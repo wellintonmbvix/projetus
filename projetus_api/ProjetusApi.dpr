@@ -116,6 +116,7 @@ begin
           THorseJWTConfig.New.SkipRoutes(['/api/v1/login',
                                           '/api/v1/profissionais',
                                           '/api/v1/clientes',
+                                          '/api/v1/recursos/estados',
                                           '/api/v1/swagger/doc/html',
                                           '/api/v1/swagger/doc/json'])));
 
@@ -133,7 +134,7 @@ begin
   TControllerLogin.Registry;
   TControllerRecursos.Registry;
 
-  THorse.Host := '127.0.0.1';
+  THorse.Host := '0.0.0.0';
   THorse.Listen(3000,
     procedure
     begin
