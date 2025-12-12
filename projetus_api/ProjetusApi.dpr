@@ -91,7 +91,10 @@ uses
   controller.dto.estados.interfaces in 'src\controller\dto\controller.dto.estados.interfaces.pas',
   controller.dto.municipios.interfaces in 'src\controller\dto\controller.dto.municipios.interfaces.pas',
   controller.dto.estados.interfaces.impl in 'src\controller\dto\implementation\controller.dto.estados.interfaces.impl.pas',
-  controller.recursos in 'src\controller\controller.recursos.pas';
+  controller.recursos in 'src\controller\controller.recursos.pas',
+  controller.recover_password in 'src\controller\controller.recover_password.pas',
+  controller.dto.recover_password.interfaces in 'src\controller\dto\controller.dto.recover_password.interfaces.pas',
+  controller.dto.recover_password.interfaces.impl in 'src\controller\dto\implementation\controller.dto.recover_password.interfaces.impl.pas';
 
 begin
 {$IFDEF MSWINDOWS}
@@ -116,6 +119,7 @@ begin
           THorseJWTConfig.New.SkipRoutes(['/api/v1/login',
                                           '/api/v1/profissionais',
                                           '/api/v1/clientes',
+                                          '/api/v1/recover-password',
                                           '/api/v1/recursos/estados',
                                           '/api/v1/swagger/doc/html',
                                           '/api/v1/swagger/doc/json'])));
@@ -133,6 +137,7 @@ begin
   TControllerUsuarios.Registry;
   TControllerLogin.Registry;
   TControllerRecursos.Registry;
+  TControllerRecoverPassword.Registry;
 
   THorse.Host := '0.0.0.0';
   THorse.Listen(3000,

@@ -232,6 +232,9 @@
         <DCCReference Include="src\controller\dto\controller.dto.municipios.interfaces.pas"/>
         <DCCReference Include="src\controller\dto\implementation\controller.dto.estados.interfaces.impl.pas"/>
         <DCCReference Include="src\controller\controller.recursos.pas"/>
+        <DCCReference Include="src\controller\controller.recover_password.pas"/>
+        <DCCReference Include="src\controller\dto\controller.dto.recover_password.interfaces.pas"/>
+        <DCCReference Include="src\controller\dto\implementation\controller.dto.recover_password.interfaces.impl.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -271,6 +274,18 @@
                 <DeployFile LocalName=".bin\Win32\Debug\ProjetusApi.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>ProjetusApi.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName=".bin\Win64\Debug\ProjetusApi.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>ProjetusApi.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName=".bin\Win64\Debug\ProjetusApi.rsm" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win64">
+                        <RemoteName>ProjetusApi.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

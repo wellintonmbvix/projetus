@@ -8,11 +8,12 @@ uses
   System.SysUtils,
   System.Rtti,
   System.TypInfo,
+  System.JSON,
 
   dbebr.factory.interfaces,
   dbebr.factory.firedac,
-  cqlbr.select.mssql,
-  cqlbr.serialize.mssql,
+  cqlbr.select.postgresql,
+  cqlbr.serialize.postgresql,
   ormbr.criteria.resultset,
   ormbr.types.nullable,
 
@@ -42,6 +43,7 @@ type
       class function New: IServiceScripts;
 
       function InsertCustomer(Cliente: Tpessoas; var msg: String): Boolean; overload;
+      function GetEmailByUserName(userName: String; out email: String): Boolean; overload;
   end;
 
 implementation
@@ -62,6 +64,38 @@ end;
 destructor TServiceScripts.Destroy;
 begin
   inherited;
+end;
+
+function TServiceScripts.GetEmailByUserName(userName: String;
+  out email: String): Boolean;
+var
+  LSQL: String;
+  LResultSet: IDBResultSet;
+  id_pessoa, id_contato: Integer;
+begin
+  Result := False;
+  email := '';
+
+  LSQL := TCQL.New(dbnPostgreSQL)
+          .Select
+          .All
+          .From('contatos_emails')
+            .InnerJoin('contatos').On('contatos_emails.id_contato=contatos.id_contato')
+            .InnerJoin('usuarios').On('contatos.id_pessoa=contatos.id_pessoa')
+          .Where('usuarios.nome_usuario='+QuotedStr(username))
+        .AsString;
+
+  LResultSet := TCriteria.New.SetConnection(FConnectionORM).SQL(LSQL).AsResultSet;
+  if LResultSet.RecordCount > 0 then
+    begin
+      email := LResultSet.FieldByName('emails').Value;
+      var JSONArray := TJSONObject.ParseJSONValue(email) as TJSONArray;
+      if Assigned(JSONArray) then
+        begin
+          email := JSONArray.Items[0].Value;
+          Result := True;
+        end;
+    end;
 end;
 
 function TServiceScripts.InsertCustomer(Cliente: Tpessoas;
