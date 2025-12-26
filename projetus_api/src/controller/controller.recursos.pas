@@ -38,7 +38,7 @@ type
     [SwagResponse(400, TAPIMessage, 'Bad Request')]
     [SwagResponse(500, TAPIMessage, 'Internal Server Error')]
     [SwagParamQuery('nome', 'Nome do estado', False, False)]
-    [SwagParamQuery('sigel', 'Sigla do estado', False, False)]
+    [SwagParamQuery('sigla', 'Sigla do estado', False, False)]
     class procedure GetEstados(Req: THorseRequest; Res: THorseResponse; Next: TProc);
   end;
 

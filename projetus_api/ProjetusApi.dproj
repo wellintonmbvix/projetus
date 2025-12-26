@@ -235,6 +235,10 @@
         <DCCReference Include="src\controller\controller.recover_password.pas"/>
         <DCCReference Include="src\controller\dto\controller.dto.recover_password.interfaces.pas"/>
         <DCCReference Include="src\controller\dto\implementation\controller.dto.recover_password.interfaces.impl.pas"/>
+        <DCCReference Include="src\model\entity\model.configuracao_email.pas"/>
+        <DCCReference Include="src\model\entity\model.recover_password_codes.pas"/>
+        <DCCReference Include="src\controller\dto\controller.dto.recover_password_code.interfaces.pas"/>
+        <DCCReference Include="src\controller\dto\implementation\controller.dto.recover_password_code.interfaces.impl.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -280,12 +284,6 @@
                 <DeployFile LocalName=".bin\Win64\Debug\ProjetusApi.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>ProjetusApi.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName=".bin\Win64\Debug\ProjetusApi.rsm" Configuration="Debug" Class="DebugSymbols">
-                    <Platform Name="Win64">
-                        <RemoteName>ProjetusApi.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

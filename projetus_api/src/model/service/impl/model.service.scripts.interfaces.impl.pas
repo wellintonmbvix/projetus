@@ -9,6 +9,7 @@ uses
   System.Rtti,
   System.TypInfo,
   System.JSON,
+  System.DateUtils,
 
   dbebr.factory.interfaces,
   dbebr.factory.firedac,
@@ -27,6 +28,7 @@ uses
   firedac.Stan.Param,
 
   model.pessoa,
+  model.configuracao_email,
   model.resource.interfaces,
   model.resource.impl.factory,
   model.service.scripts.interfaces;
@@ -44,6 +46,8 @@ type
 
       function InsertCustomer(Cliente: Tpessoas; var msg: String): Boolean; overload;
       function GetEmailByUserName(userName: String; out email: String): Boolean; overload;
+      function GetConfigEmail(host: String; out configEmail: Tconfiguracaoemail): Boolean;
+      function ValidateCode(code: String; username: String; out msg: String): Boolean;
   end;
 
 implementation
@@ -66,6 +70,39 @@ begin
   inherited;
 end;
 
+function TServiceScripts.GetConfigEmail(host: String;
+  out configEmail: Tconfiguracaoemail): Boolean;
+var
+  LSQL: String;
+  LResultSet: IDBResultSet;
+begin
+  Result := False;
+
+  LSQL := TCQL.New(dbnPostgreSQL)
+          .Select
+          .All
+          .From('configuracao_email')
+          .Where('host='+QuotedStr(host))
+          .AsString;
+
+  LResultSet := TCriteria.New.SetConnection(FConnectionORM).SQL(LSQL).AsResultSet;
+  if LResultSet.RecordCount > 0 then
+    begin
+      With configEmail do
+        begin
+          host := LResultSet.FieldByName('host').AsString;
+          name := LResultSet.FieldByName('name').AsString;
+          userName := LResultSet.FieldByName('user_name').AsString;
+          password := LResultSet.FieldByName('password').AsString;
+          port := LResultSet.FieldByName('port').AsInteger;
+          criptografiaSSL := LResultSet.FieldByName('criptografia_ssl').AsBoolean;
+          requerAutenticacao := LResultSet.FieldByName('requer_autenticacao').AsBoolean;
+          confirmarRecebimento := LResultSet.FieldByName('confirmar_recebimento').AsBoolean;
+        end;
+      Result := True;
+    end;
+end;
+
 function TServiceScripts.GetEmailByUserName(userName: String;
   out email: String): Boolean;
 var
@@ -81,7 +118,7 @@ begin
           .All
           .From('contatos_emails')
             .InnerJoin('contatos').On('contatos_emails.id_contato=contatos.id_contato')
-            .InnerJoin('usuarios').On('contatos.id_pessoa=contatos.id_pessoa')
+            .InnerJoin('usuarios').On('contatos.id_pessoa=usuarios.id_pessoa')
           .Where('usuarios.nome_usuario='+QuotedStr(username))
         .AsString;
 
@@ -285,6 +322,33 @@ end;
 class function TServiceScripts.New: IServiceScripts;
 begin
   Result := Self.Create;
+end;
+
+function TServiceScripts.ValidateCode(code, username: String; out msg: String): Boolean;
+var
+  LSQL: String;
+  LResultSet: IDBResultSet;
+begin
+  Result := False;
+
+  LSQL := TCQL.New(dbnPostgreSQL)
+            .Select
+            .All
+            .From('recover_password_codes')
+            .Where('code').Equal(QuotedStr(code.Replace('"','')))
+              .&And('username').Equal(QuotedStr(username.Replace('"','')))
+          .AsString;
+
+  LResultSet := TCriteria.New.SetConnection(FConnectionORM).SQL(LSQL).AsResultSet;
+    if LResultSet.RecordCount > 0 then
+      begin
+        if (LResultSet.FieldByName('date_expiration').Value) < (IncMinute(now(), -1)) then
+          msg := 'Code has expired'
+        else
+          Result := True;
+      end
+    else
+      msg := 'Code or username is not valid';
 end;
 
 end.

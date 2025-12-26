@@ -94,7 +94,11 @@ uses
   controller.recursos in 'src\controller\controller.recursos.pas',
   controller.recover_password in 'src\controller\controller.recover_password.pas',
   controller.dto.recover_password.interfaces in 'src\controller\dto\controller.dto.recover_password.interfaces.pas',
-  controller.dto.recover_password.interfaces.impl in 'src\controller\dto\implementation\controller.dto.recover_password.interfaces.impl.pas';
+  controller.dto.recover_password.interfaces.impl in 'src\controller\dto\implementation\controller.dto.recover_password.interfaces.impl.pas',
+  model.configuracao_email in 'src\model\entity\model.configuracao_email.pas',
+  model.recover_password_codes in 'src\model\entity\model.recover_password_codes.pas',
+  controller.dto.recover_password_code.interfaces in 'src\controller\dto\controller.dto.recover_password_code.interfaces.pas',
+  controller.dto.recover_password_code.interfaces.impl in 'src\controller\dto\implementation\controller.dto.recover_password_code.interfaces.impl.pas';
 
 begin
 {$IFDEF MSWINDOWS}
@@ -120,6 +124,8 @@ begin
                                           '/api/v1/profissionais',
                                           '/api/v1/clientes',
                                           '/api/v1/recover-password',
+                                          '/api/v1/recover-password/validate-code',
+                                          '/api/v1/recover-password/change-password',
                                           '/api/v1/recursos/estados',
                                           '/api/v1/swagger/doc/html',
                                           '/api/v1/swagger/doc/json'])));
